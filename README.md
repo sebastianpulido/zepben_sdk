@@ -1,1 +1,1 @@
-# zepben_sdk
+# zepben.sdk

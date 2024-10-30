@@ -1,0 +1,31 @@
+{
+    "Terminal": 
+    {
+        "mrid":"mrid",
+        "conducting_equipment":"conducting_equipment",
+        "connect":"connect",
+        "connected_terminals":"connected_terminals",
+        "current_feeder_direction":"current_feeder_direction",
+        "name":"name",
+        "phases":"phases",
+        "sequence_number":"sequence_number",
+        "traced_phases":"traced_phases",
+        "connected":"connected",
+        "base_voltage":"base_voltage",
+        "connectivity_node":"connectivity_node",
+        "connectivity_node_id":"connectivity_node_id",
+        "current_phases.terminal":"current_phases.terminal",
+        "names":"names",
+        "normal_phases.terminal":"normal_phases.terminal"
+    },
+    "ConnectivityNode":
+    {
+        "id":"id",
+        "names":"names",
+        "terminals":"terminals",
+        "description":"description",
+        "get_switch":"switch",
+        "num_terminals":"num_terminals",
+        "is_switched":"is_switched"
+    }
+}
