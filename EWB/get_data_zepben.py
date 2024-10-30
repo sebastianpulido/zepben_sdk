@@ -32,7 +32,8 @@ def export_data_to_json_and_csv(_data):
 def run():
     
     terminals_filename="teminals.csv"
-    connectivitynode_filename="connectivity_node.csv"
+    connectivitynode_filename="connectivity_nodes.csv"
+    breaker_filename="breakers.csv"
 
     with open("./output.txt", 'w') as file:
         pass
@@ -107,6 +108,7 @@ def run():
     headers = get_header("Terminal")
     create_csv(f"./{terminals_filename}", *headers.split(','))
 
+    stop = 100
     for tm in network.objects(Terminal):
         line = f"""\n-->terminal data: 
         - mrid: {tm.mrid} 
@@ -124,35 +126,89 @@ def run():
         - connectivity_node_id: {tm.connectivity_node_id} 
         - current_phases.terminal: {tm.current_phases.terminal} 
         - names: {list(tm.names)} 
-        - normal_phases.terminal: {tm.normal_phases.terminal}"""
+        - current_phases.as_phase_code: {tm.current_phases.as_phase_code()}
+        - normal_phases.as_phase_code: {tm.normal_phases.as_phase_code()}
+        - tm.current_phases: {tm.current_phases.terminal}
+        - normal_phases.terminal: {tm.normal_phases.terminal}
+        - description: {tm.description}
+        - other_terminals: {list(tm.other_terminals())}
+        - num_names: {tm.num_names()}
+        - _conducting_equipment: {tm._conducting_equipment}
+        - phases: {tm.phases}
+        - __repr__: {tm.__repr__()}
+        """
         log(line)
 
         row = ""
         row = f"'{tm.mrid}','{tm.conducting_equipment}','{tm.connect}','{tm.connected_terminals}','{tm.current_feeder_direction}','{tm.name}','{tm.phases}','{tm.sequence_number}','{tm.traced_phases}','{tm.connected}','{tm.base_voltage}','{tm.connectivity_node}','{tm.connectivity_node_id}','{tm.current_phases.terminal}','{tm.names}','{tm.normal_phases.terminal}'"
         cleaned_row = [value.strip("'") for value in row.split("','")]
         create_csv(f"./{terminals_filename}", *cleaned_row)
+
+        stop=stop-1
+        if stop == 0:
+            break
     #
     #
     #
 
-    sys.exit(0)
+    
 
 
+    headers = get_header("Breaker")
+    create_csv(f"./{breaker_filename}", *headers.split(','))
 
-    for breaker in network.objects(Breaker):
-        line = f"\n-->breaker data: name:{breaker.name} - base_voltage:{breaker.base_voltage} - mrid:{breaker.mrid} - breaking_capacity:{breaker.breaking_capacity} - {breaker._operational_restrictions} - {breaker._equipment_containers}"
-        
-        #line = f"\n{breaker.name},{breaker.base_voltage},{breaker.mrid},{breaker.breaking_capacity}"
-        print(line)
+    
+    for bk in network.objects(Breaker):
+        line = f"""\n-->breaker data: 
+        - asset_info: {bk.asset_info}
+        - base_voltage: {bk.base_voltage}
+        - base_voltage_value: {bk.base_voltage_value}
+        - breaking_capacity: {bk.breaking_capacity} 
+        - commissioned_date: {bk.commissioned_date}
+        - current_containers: {list(bk.current_containers)}
+        - is_substation_breaker: {bk.is_substation_breaker}
+        - is_feeder_head_breaker: {bk.is_feeder_head_breaker}
+        - __str__: {bk.__str__()}
+        - containers: {list(bk.containers)}
+        - current_containers: {list(bk.current_containers)}
+        - current_feeders: {list(bk.current_feeders)}
+        - current_lv_feeders: {list(bk.current_lv_feeders)}
+        - _usage_points: {bk._usage_points}
+        - _terminals: {bk._terminals}
+        - _equipment_containers: {bk._equipment_containers}
+        - _names: {bk._names}
+        - _current_containers: {bk._current_containers}
+        - _normally_open: {bk._normally_open}
+        - _open: {bk._open}
+        - _operational_restrictions: {bk._operational_restrictions}
+        - _relay_functions: {bk._relay_functions}
+        - description: {bk.description}
+        - bk.terminals: {list(bk.terminals)}
+        - bk.num_terminals(): {bk.num_terminals}
+        - bk.__repr__: {bk.__repr__()}
+        """
         log(line)
+
+        row = ""
+        row = f""
+        cleaned_row = [value.strip("'") for value in row.split("','")]
+        create_csv(f"./{breaker_filename}", *cleaned_row)
+
+        stop=stop-1
+        if stop == 0:
+            break
    
     log(" \n")
+
+    sys.exit(0)
 
     for pt in network.objects(PowerTransformer):
         line = f"-->transformer_data: function:{pt.function} - base_voltage:{pt.base_voltage} - location_name:{pt.location.name} - in_service:{pt.in_service}\n"
         print(line)
         log(line)
     log(" \n")
+
+    
 
     # Print count of customers under each distribution transformer
     for tx in network.objects(PowerTransformer):

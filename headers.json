@@ -27,5 +27,20 @@
         "get_switch":"switch",
         "num_terminals":"num_terminals",
         "is_switched":"is_switched"
+    },
+    "Breaker":
+    {
+        "in_transit_time":"in_transit_time",
+        "is_substation_breaker":"is_substation_breaker",
+        "is_feeder_head_breaker":"is_feeder_head_breaker",
+        "breaking_capacity":"breaking_capacity",
+        "_relay_functions":"_relay_functions",
+        "relay_functions":"relay_functions",
+        "num_relay_functions":"num_relay_functions",
+        "get_relay_function":"get_relay_function",
+        "rated_current":"rated_current",
+        "switch_info":"switch_info",
+        "get_normal_state":"get_normal_state",
+        "get_state":"get_state"
     }
 }
