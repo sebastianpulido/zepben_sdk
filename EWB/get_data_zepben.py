@@ -6,8 +6,8 @@ import datetime
  
 from zepben.protobuf.nc.nc_requests_pb2 import IncludedEnergizedContainers
  
-from zepben.evolve import ConnectivityNode, Terminal, Meter, ConductingEquipment, PowerTransformer, Breaker, EnergyConsumer, LvFeeder, AcLineSegment, connect_with_secret, \
-    TransformerFunctionKind, UsagePoint, Equipment, Switch
+from zepben.evolve import PerLengthSequenceImpedance, Conductor, PowerTransformer, Circuit, Loop, PowerSystemResource, ConnectivityNode, Terminal, Meter, ConductingEquipment, PowerTransformer, Breaker, EnergyConsumer, LvFeeder, AcLineSegment, connect_with_secret, \
+    TransformerFunctionKind, UsagePoint, Equipment, Switch, Feeder, BaseService, GeographicalRegion
 
 from zepben.evolve.streaming.get.network_consumer import SyncNetworkConsumerClient
 
@@ -41,6 +41,12 @@ def run():
     with open(f"./{terminals_filename}", 'w') as file:
         pass
 
+    with open(f"./{connectivitynode_filename}", 'w') as file:
+        pass
+
+    with open(f"./{breaker_filename}", 'w') as file:
+        pass
+
     ''''
     channel = connect_with_secret(host="rdvewb101.powerdev.dev.int",
                                     rpc_port=443,
@@ -62,20 +68,91 @@ def run():
     feeder_mrid = "PTN14"
     client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
 
-    client.get_equipment_container("PTN11", include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
- 
-    export_data_to_json_and_csv(client)
+    #client.get_equipment_container("PTN11", include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
 
     print()
     print(f"Processing feeder {feeder_mrid}")
     print()
+
+    log("---- ConductingEquipment\n")
  
     types = set(type(x) for x in network.objects(ConductingEquipment))
     for t in types:
         line=f'Number of {t.__name__} = {len(list(network.objects(t)))}s\n'
         log(line)
 
-    
+    log("---- Feeder\n")
+
+    types = set(type(x) for x in network.objects(Feeder))
+    for t in types:
+        line=f'Number of {t.__name__} = {len(list(network.objects(t)))}s\n'
+        log(line)
+
+    log("---- Switch\n")
+
+    types = set(type(x) for x in network.objects(Switch))
+    for t in types:
+        line=f'Number of {t.__name__} = {len(list(network.objects(t)))}s\n'
+        log(line)
+
+    log("---- BaseService\n")
+
+    types = set(type(x) for x in network.objects(BaseService))
+    for t in types:
+        line=f'Number of {t.__name__} = {len(list(network.objects(t)))}s\n'
+        log(line)
+
+    log("---- Conductor\n")
+
+    types = set(type(x) for x in network.objects(Conductor))
+    for t in types:
+        line=f'Number of {t.__name__} = {len(list(network.objects(t)))}s\n'
+        log(line)
+
+    log("---- PerLengthSequenceImpedance\n")
+
+    types = set(type(x) for x in network.objects(PerLengthSequenceImpedance))
+    for t in types:
+        line=f'Number of {t.__name__} = {len(list(network.objects(t)))}s\n'
+        log(line)
+
+    log("---- GeographicalRegion\n")
+
+    types = set(type(x) for x in network.objects(GeographicalRegion))
+    for t in types:
+        line=f'Number of {t.__name__} = {len(list(network.objects(t)))}s\n'
+        log(line)
+
+    log("---- PowerSystemResource\n")
+
+    types = set(type(x) for x in network.objects(PowerSystemResource))
+    for t in types:
+        line=f'Number of {t.__name__} = {len(list(network.objects(t)))}s\n'
+        log(line)
+
+    log("---- Circuit\n")
+
+    types = set(type(x) for x in network.objects(Circuit))
+    for t in types:
+        line=f'Number of {t.__name__} = {len(list(network.objects(t)))}s\n'
+        log(line)
+
+    log("---- Loop\n")
+
+    types = set(type(x) for x in network.objects(Loop))
+    for t in types:
+        line=f'Number of {t.__name__} = {len(list(network.objects(t)))}s\n'
+        log(line)
+
+    log("---- PowerTransformer\n")
+
+    types = set(type(x) for x in network.objects(PowerTransformer))
+    for t in types:
+        line=f'Number of {t.__name__} = {len(list(network.objects(t)))}s\n'
+        log(line)
+
+    log("---- ConnectivityNode\n")
+
     headers = get_header("ConnectivityNode")
     create_csv(f"./{connectivitynode_filename}", *headers.split(','))
 
@@ -157,7 +234,7 @@ def run():
     headers = get_header("Breaker")
     create_csv(f"./{breaker_filename}", *headers.split(','))
 
-    
+    stop = 100
     for bk in network.objects(Breaker):
         line = f"""\n-->breaker data: 
         - asset_info: {bk.asset_info}
@@ -170,7 +247,6 @@ def run():
         - is_feeder_head_breaker: {bk.is_feeder_head_breaker}
         - __str__: {bk.__str__()}
         - containers: {list(bk.containers)}
-        - current_containers: {list(bk.current_containers)}
         - current_feeders: {list(bk.current_feeders)}
         - current_lv_feeders: {list(bk.current_lv_feeders)}
         - _usage_points: {bk._usage_points}
@@ -190,7 +266,7 @@ def run():
         log(line)
 
         row = ""
-        row = f""
+        row = f"'{bk.__str__()}','{bk.asset_info}','{bk.base_voltage}','{bk.base_voltage_value}','{bk.breaking_capacity}','{bk.commissioned_date}','{list(bk.current_containers)}','{bk.is_substation_breaker}','{bk.is_feeder_head_breaker}','{list(bk.containers)}','{list(bk.current_feeders)}','{list(bk.current_lv_feeders)}','{bk._usage_points}','{bk._terminals}','{bk._equipment_containers}','{bk._names}','{bk._current_containers}','{bk._normally_open}','{bk._open}','{bk._operational_restrictions}','{bk._relay_functions}','{bk.description}','{list(bk.terminals)}','{bk.num_containers}','{bk.__repr__()}"
         cleaned_row = [value.strip("'") for value in row.split("','")]
         create_csv(f"./{breaker_filename}", *cleaned_row)
 
