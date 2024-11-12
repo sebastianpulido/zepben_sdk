@@ -29,6 +29,12 @@ def main():
     network_hierarchy = client.get_network_hierarchy()    
     #print(f"network: {network_hierarchy.result}")
 
+    for fdr in network_hierarchy.result.feeders.values:
+        client2 = SyncNetworkConsumerClient(channel=channel)
+        client2.get_equipment_container(fdr.mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
+        network = client2.service
+
+
     print("Network hierarchy:")
     for gr in network_hierarchy.result.geographical_regions.values():
         print(f"name - {gr.name}")

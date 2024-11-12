@@ -7,7 +7,7 @@ import datetime
 from zepben.protobuf.nc.nc_requests_pb2 import IncludedEnergizedContainers
  
 from zepben.evolve import PerLengthSequenceImpedance, Conductor, PowerTransformer, Circuit, Loop, PowerSystemResource, ConnectivityNode, Terminal, Meter, ConductingEquipment, PowerTransformer, Breaker, EnergyConsumer, LvFeeder, AcLineSegment, connect_with_secret, \
-    TransformerFunctionKind, UsagePoint, Equipment, Switch, Feeder, BaseService, GeographicalRegion
+    TransformerFunctionKind, UsagePoint, Equipment, Switch, Feeder, BaseService, GeographicalRegion, BusbarSection, Substation
 
 from zepben.evolve.streaming.get.network_consumer import SyncNetworkConsumerClient
 
@@ -29,9 +29,14 @@ def export_data_to_json_and_csv(_data):
     #     writer.writeheader()
     #     writer.writerows(data)
  
+#def print_switch_states(network: NetworkService, feeder: Feeder):    
+# for switch in network.objects(Switch):        
+# # Switch mRID is either the asset_id or the se_history_rootid from the netcon_connection table.        
+# print(f"{switch.mrid} {"open" if switch.is_normally_open() else "closed"}")
+
 def run():
     
-    terminals_filename="teminals.csv"
+    terminals_filename="teminals2.csv"
     connectivitynode_filename="connectivity_nodes.csv"
     breaker_filename="breakers.csv"
 
@@ -47,7 +52,7 @@ def run():
     with open(f"./{breaker_filename}", 'w') as file:
         pass
 
-    ''''
+    
     channel = connect_with_secret(host="rdvewb101.powerdev.dev.int",
                                     rpc_port=443,
                                     client_id="e2dd8725-2887-4711-9236-35d60f1b279b",
@@ -55,18 +60,20 @@ def run():
                                     client_secret="gx18Q~gO7wog7OkW4TYLmmd6Deu1Nerwu__giaWD",
                                     ca_filename="./certificate.crt",
                                     verify_conf=False)
-    '''
-    channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
-                                    rpc_port=50051,
-                                    client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
-                                    client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                    ca_filename="./X1.pem",
-                                    verify_conf=False)
+    
+    # channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
+    #                                 rpc_port=50051,
+    #                                 client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
+    #                                 client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
+    #                                 ca_filename="./X1.pem",
+    #                                 verify_conf=False)
     
     client = SyncNetworkConsumerClient(channel=channel)
     network = client.service
     feeder_mrid = "PTN14"
     client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
+
+    log(client)
 
     #client.get_equipment_container("PTN11", include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
 
@@ -81,6 +88,25 @@ def run():
         line=f'Number of {t.__name__} = {len(list(network.objects(t)))}s\n'
         log(line)
 
+    for ce in network.objects(ConductingEquipment):
+        line=f"""-->ConductingEquipment data: 
+        - base_voltage_value {ce.base_voltage_value}
+        - containers {list(ce.containers)}
+        - current_lv_feeders {list(ce.current_lv_feeders)}
+        - current_containers {list(ce.current_containers)}
+        - current_feeders {list(ce.current_feeders)}
+        - normal_feeders {list(ce.normal_feeders)}
+        - operational_restrictions {list(ce.operational_restrictions)}
+        - sites {list(ce.sites)}
+        - substations {list(ce.substations)}
+        - {ce.has_controls}
+        - terminals {list(ce.terminals)}
+        - usage_points {list(ce.usage_points)}
+        - __str__() {ce.__str__()}\n
+        """
+        log(line)
+
+
     log("---- Feeder\n")
 
     types = set(type(x) for x in network.objects(Feeder))
@@ -88,11 +114,63 @@ def run():
         line=f'Number of {t.__name__} = {len(list(network.objects(t)))}s\n'
         log(line)
 
+    for feeder in network.objects(Feeder):
+        line=f"""-->feeder data: 
+        - __repr__ {feeder.__repr__()}
+        - current_equipment {list(feeder.current_equipment)}   
+        - equipment {list(feeder.equipment)}
+        - has_controls {feeder.has_controls}
+        - normal_energized_lv_feeders {list(feeder.normal_energized_lv_feeders)}
+        - mrid {feeder.mrid}
+        - asset_info {feeder.asset_info}\n
+        """
+        log(line)
+
+        row = ""
+
     log("---- Switch\n")
 
     types = set(type(x) for x in network.objects(Switch))
     for t in types:
         line=f'Number of {t.__name__} = {len(list(network.objects(t)))}s\n'
+        log(line)
+
+    # feeder mrid='29241492-28905-lvf'
+    # 29241492 -- asset it OR rootid 
+    # 28905    -- from_id/to_id
+    # LvF      -- 
+
+    # name='CARLISLE-HOTHAM' --> search the asset in SDW (transformer table)
+
+    for sw in network.objects(Switch):
+        line=f"""-->switch data: 
+        - __str__ {sw.__str__()}
+        - base_voltage_value {sw.base_voltage_value}
+        - containers {list(sw.containers)}
+        - current_containers {list(sw.current_containers)}
+        - current_feeders {list(sw.current_feeders)}
+        - current_lv_feeders {list(sw.current_lv_feeders)}
+        - has_controls: {sw.has_controls}
+        - normal_feeders {list(sw.normal_feeders)}
+        - normal_lv_feeders {list(sw.normal_lv_feeders)}
+        - normally_in_service: {sw.normally_in_service}
+        - description: {sw.description}
+        - commissioned_date: {sw.commissioned_date}
+        - asset_info: {sw.asset_info}
+        - base_voltage: {sw.base_voltage}
+        - in_service: {sw.in_service}
+        - location: {sw.location}
+        - mrid {sw.mrid}
+        - name {sw.name}
+        - num_substations(): {sw.num_substations()}
+        - rated_current: {sw.rated_current}
+        - _open: {sw._open}
+        - _normally_open: {sw._normally_open}
+        - get_normal_state(): {sw.get_normal_state()}
+        - get_state(): {sw.get_state()}
+        - num_controls: {sw.num_controls}
+        - rated_current: {sw.rated_current}\n
+        """
         log(line)
 
     log("---- BaseService\n")
@@ -151,12 +229,19 @@ def run():
         line=f'Number of {t.__name__} = {len(list(network.objects(t)))}s\n'
         log(line)
 
+    log("---- Substation\n")
+
+    types = set(type(x) for x in network.objects(Substation))
+    for t in types:
+        line=f'Number of {t.__name__} = {len(list(network.objects(t)))}s\n'
+        log(line)
+
     log("---- ConnectivityNode\n")
 
     headers = get_header("ConnectivityNode")
     create_csv(f"./{connectivitynode_filename}", *headers.split(','))
 
-    stop = 100
+    #stop = 100
     for cn in network.objects(ConnectivityNode):
         line=f"""-->connectivity_node data: 
         - name_id: {cn.__str__()}
@@ -174,9 +259,9 @@ def run():
         create_csv(f"./{connectivitynode_filename}", *cleaned_row)
 
     #    
-        stop=stop-1
-        if stop == 0:
-            break
+    #    stop=stop-1
+    #    if stop == 0:
+    #        break
 
     #
     #
@@ -185,7 +270,9 @@ def run():
     headers = get_header("Terminal")
     create_csv(f"./{terminals_filename}", *headers.split(','))
 
-    stop = 100
+    log(f"number of terminals: {network.objects(Terminal).__sizeof__()}")
+
+    #stop = 100
     for tm in network.objects(Terminal):
         line = f"""\n-->terminal data: 
         - mrid: {tm.mrid} 
@@ -217,13 +304,13 @@ def run():
         log(line)
 
         row = ""
-        row = f"'{tm.mrid}','{tm.conducting_equipment}','{tm.connect}','{tm.connected_terminals}','{tm.current_feeder_direction}','{tm.name}','{tm.phases}','{tm.sequence_number}','{tm.traced_phases}','{tm.connected}','{tm.base_voltage}','{tm.connectivity_node}','{tm.connectivity_node_id}','{tm.current_phases.terminal}','{tm.names}','{tm.normal_phases.terminal}'"
+        row = f"'{tm.mrid}','{tm.conducting_equipment}','{tm.connected}','{list(tm.connected_terminals())}','{tm.current_feeder_direction}','{tm.name}','{tm.phases}','{tm.sequence_number}','{tm.traced_phases}','{tm.connected}','{tm.base_voltage}','{tm.connectivity_node}','{tm.connectivity_node_id}','{tm.current_phases.terminal}','{tm.names}','{tm.normal_phases.terminal}'"
         cleaned_row = [value.strip("'") for value in row.split("','")]
         create_csv(f"./{terminals_filename}", *cleaned_row)
 
-        stop=stop-1
-        if stop == 0:
-            break
+    #    stop=stop-1
+    #    if stop == 0:
+    #        break
     #
     #
     #
@@ -234,7 +321,7 @@ def run():
     headers = get_header("Breaker")
     create_csv(f"./{breaker_filename}", *headers.split(','))
 
-    stop = 100
+    #stop = 100
     for bk in network.objects(Breaker):
         line = f"""\n-->breaker data: 
         - asset_info: {bk.asset_info}
@@ -270,9 +357,9 @@ def run():
         cleaned_row = [value.strip("'") for value in row.split("','")]
         create_csv(f"./{breaker_filename}", *cleaned_row)
 
-        stop=stop-1
-        if stop == 0:
-            break
+    #    stop=stop-1
+    #    if stop == 0:
+    #        break
    
     log(" \n")
 
