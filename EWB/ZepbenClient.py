@@ -6,7 +6,7 @@ class ZepbenClient:
 
     def get_zepben_client(self, feeder_mrid):
 
-        basepath = "./EWB/dev/config"
+        basepath = "./EWB"
 
         
         channel = connect_with_secret(host="rdvewb101.powerdev.dev.int",

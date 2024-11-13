@@ -15,17 +15,18 @@ from zepben.evolve import PerLengthSequenceImpedance, Conductor, PowerTransforme
 class acLineSegment_data:
 
     def __init__(self):
+        name = self.__class__.__name__
         now = datetime.datetime.now().strftime("%d%m%Y")
         #now = datetime.datetime.now().strftime("%d%m%Y-%H%M")
         basepath = "./EWB/outputs"
-        self.data_path = f"{basepath}/acLineSegment_data_{now}.csv"
-        self.connections_path = f"{basepath}/acLineSegment_connections_{now}.csv"
+        self.data_path = f"{basepath}/{name}_{now}.csv"
+        self.connections_path = f"{basepath}/{name}_connections_{now}.csv"
         self.network = ZepbenClient().get_zepben_client("PTN14")
 
         if not os.path.exists(f"{basepath}"):
             os.makedirs(f"{basepath}")
+            
     
-
     def get_all_connections(self):
         filename = self.connections_path
         cleanup(filename)

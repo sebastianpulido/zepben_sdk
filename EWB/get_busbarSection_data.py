@@ -12,13 +12,13 @@ from zepben.protobuf.nc.nc_requests_pb2 import IncludedEnergizedContainers
 from zepben.evolve import PerLengthSequenceImpedance, Conductor, PowerTransformer, Circuit, Loop, PowerSystemResource, ConnectivityNode, Terminal, Meter, ConductingEquipment, PowerTransformer, Breaker, EnergyConsumer, LvFeeder, AcLineSegment, connect_with_secret, TransformerFunctionKind, connected_equipment, UsagePoint, Equipment, Switch, Feeder, BaseService, GeographicalRegion, BusbarSection, Substation
 
 class busbarSection:
-
     def __init__(self):
-        # now = datetime.datetime.now().strftime("%d%m%Y")
-        now = datetime.datetime.now().strftime("%d%m%Y-%H%M")
+        name = self.__class__.__name__
+        now = datetime.datetime.now().strftime("%d%m%Y")
+        #now = datetime.datetime.now().strftime("%d%m%Y-%H%M")
         basepath = "./EWB/outputs"
-        self.data_path = f"{basepath}/busbarSection_data_{now}.csv"
-        self.connections_path = f"{basepath}/busbarSection_connections_{now}.csv"
+        self.data_path = f"{basepath}/{name}_{now}.csv"
+        self.connections_path = f"{basepath}/{name}_connections_{now}.csv"
         self.network = ZepbenClient().get_zepben_client("PTN14")
 
         if not os.path.exists(f"{basepath}"):
@@ -34,7 +34,6 @@ class busbarSection:
             line = f"{eq.__str__()}';'mrid: {eq.mrid}';'connnections: {connections}"
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
-             
 
 
     def get_busbarSection_data(self):
@@ -50,7 +49,7 @@ class busbarSection:
         create_csv(f"./{filename}", *headers.split(','))
 
         for bs in self.network.objects(BusbarSection):
-            connections = [(f"from: {cr.from_equip.mrid}", f"to: {cr.to_equip.mrid}") for cr in connected_equipment(bs)]
+            connections = [(f"from_equip: {cr.from_equip.mrid}", f"from_terminal: {cr.from_terminal.mrid}", f"to_equip: {cr.to_equip.mrid}", f"to_terminal: {cr.to_terminal.mrid}") for cr in connected_equipment(bs)]
             line = f"'{bs.mrid}';'{bs.base_voltage}';'{bs.asset_info}';'{bs.commissioned_date}';'{bs.description}';'{bs.in_service}';'{bs.location}';'{bs.num_sites()}';'{list(bs.sites)}';'{bs.num_substations()}';'{list(bs.substations)}';'{bs.normally_in_service}';'{bs.has_controls}';'{bs.num_controls}';'{bs.base_voltage_value}';'{list(bs.current_containers)}';'{bs.num_normal_feeders()}';'{list(bs.current_feeders)}';'{list(bs.current_lv_feeders)}';'{list(bs.normal_feeders)}';'{list(bs.normal_lv_feeders)}';'{bs.num_names()}';'{list(bs.names)}';'{bs.name}';'{bs.num_operational_restrictions()}';'{list(bs.operational_restrictions)}';'{bs.num_usage_points()}';'{list(bs.usage_points)}';'{bs.num_containers()}';'{bs.num_current_containers()}';'{list(bs.containers)}';'{bs.num_terminals()}';'{list(bs.terminals)}';'{bs.__str__()}';'{connections}"
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
@@ -98,6 +97,6 @@ class busbarSection:
         print(f"|| connections: {connections}")
         
 data = busbarSection()
-data.get_from_and_to_connections_byBusbarSectionID("224279")
+# data.get_from_and_to_connections_byBusbarSectionID("224279")
 data.get_all_connections()
 data.get_busbarSection_data()
