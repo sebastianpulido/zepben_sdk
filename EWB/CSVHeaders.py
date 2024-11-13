@@ -28,4 +28,4 @@ def get_header(context):
         print(f"Context '{context}' not found.")
         return f"Context '{context}' not found."
 
-get_header("Terminal")
+# get_header("Terminal")
