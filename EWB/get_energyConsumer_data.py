@@ -20,7 +20,7 @@ class energyConsumer_data:
         basepath = "./EWB/outputs"
         self.data_path = f"{basepath}/{name}_{now}.csv"
         self.connections_path = f"{basepath}/{name}_connections_{now}.csv"
-        self.network = ZepbenClient().get_zepben_client("PTN14")
+        self.network = ZepbenClient().get_zepben_client("PTN-014")
 
         if not os.path.exists(f"{basepath}"):
             os.makedirs(f"{basepath}")
@@ -30,8 +30,8 @@ class energyConsumer_data:
         filename = self.connections_path
         cleanup(filename)
         for eq in self.network.objects(EnergyConsumer):
-            #connections = [cr.from_equip.mrid for cr in connected_equipment(eq)]
-            connections = [(f"from: {cr.from_equip.mrid}", f"to: {cr.to_equip.mrid}") for cr in connected_equipment(eq)]
+            connections = [(f"from: {cr.from_equip.__str__()}", f"to: {cr.to_equip.__str__()}") for cr in connected_equipment(eq)]
+            # connections = [(f"from: {cr.from_equip.mrid}", f"to: {cr.to_equip.mrid}") for cr in connected_equipment(eq)]
             line = f"{eq.__str__()}';'mrid: {eq.mrid}';'connnections: {connections}"
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
@@ -48,47 +48,47 @@ class energyConsumer_data:
         headers = "mrid,__str__,connections,base_voltage,asset_info,commissioned_date,description,in_service,location,num_sites,listsites,num_substations,listsubstations,normally_in_service,has_controls},num_controls,base_voltage_value,listcurrent_containers,num_normal_feeders,listcurrent_feeders,listcurrent_lv_feeders,listnormal_feeders,listnormal_lv_feeders,num_names,listnames,name,num_operational_restrictions,listoperational_restrictions},num_usage_points,usage_points,num_containers,num_current_containers,containers,num_terminals,terminals"
         create_csv(f"./{filename}", *headers.split(','))
 
-        for ce in self.network.objects(EnergyConsumer):
-            connections = [(f"from: {cr.from_equip.mrid}", f"to: {cr.to_equip.mrid}") for cr in connected_equipment(ce)]
-            line = f"'{ce.mrid}';'{ce.__str__()}';'{connections}';'{ce.base_voltage}';'{ce.asset_info}';'{ce.commissioned_date}';'{ce.description}';'{ce.in_service}';'{ce.location}';'{ce.num_sites()}';'{list(ce.sites)}';'{ce.num_substations()}';'{list(ce.substations)}';'{ce.normally_in_service}';'{ce.has_controls}';'{ce.num_controls}';'{ce.base_voltage_value}';'{list(ce.current_containers)}';'{ce.num_normal_feeders()}';'{list(ce.current_feeders)}';'{list(ce.current_lv_feeders)}';'{list(ce.normal_feeders)}';'{list(ce.normal_lv_feeders)}';'{ce.num_names()}';'{list(ce.names)}';'{ce.name}';'{ce.num_operational_restrictions()}';'{list(ce.operational_restrictions)}';'{ce.num_usage_points()}';'{list(ce.usage_points)}';'{ce.num_containers()}';'{ce.num_current_containers()}';'{list(ce.containers)}';'{ce.num_terminals()}';'{list(ce.terminals)}"
-            
+        for ec in self.network.objects(EnergyConsumer):
+            # connections = [(f"from: {cr.from_equip.mrid}", f"to: {cr.to_equip.mrid}") for cr in connected_equipment(ce)]
+            connections = [(f"from: {cr.from_equip.__str__()}", f"to: {cr.to_equip.__str__()}") for cr in connected_equipment(ec)]
+            line = f"'{ec.mrid}';'{ec.__str__()}';'{connections}';'{ec.base_voltage}';'{ec.asset_info}';'{ec.commissioned_date}';'{ec.description}';'{ec.in_service}';'{ec.location}';'{ec.num_sites()}';'{list(ec.sites)}';'{ec.num_substations()}';'{list(ec.substations)}';'{ec.normally_in_service}';'{ec.has_controls}';'{ec.num_controls}';'{ec.base_voltage_value}';'{list(ec.current_containers)}';'{ec.num_normal_feeders()}';'{list(ec.current_feeders)}';'{list(ec.current_lv_feeders)}';'{list(ec.normal_feeders)}';'{list(ec.normal_lv_feeders)}';'{ec.num_names()}';'{list(ec.names)}';'{ec.name}';'{ec.num_operational_restrictions()}';'{list(ec.operational_restrictions)}';'{ec.num_usage_points()}';'{list(ec.usage_points)}';'{ec.num_containers()}';'{ec.num_current_containers()}';'{list(ec.containers)}';'{ec.num_terminals()}';'{list(ec.terminals)}"
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 
-            # line2 = f"""{ce.mrid},
-            # {ce.base_voltage},
-            # {ce.asset_info},
-            # {ce.commissioned_date},
-            # {ce.description},
-            # {ce.in_service},
-            # {ce.location},
-            # {ce.num_sites()},
-            # {list(ce.sites)},
-            # {ce.num_substations()},
-            # {list(ce.substations)},
-            # {ce.normally_in_service},
-            # {ce.has_controls}
-            # {ce.num_controls},
-            # {ce.base_voltage_value},
-            # {list(ce.current_containers)},
-            # {ce.num_normal_feeders()},
-            # {list(ce.current_feeders)},
-            # {list(ce.current_lv_feeders)},
-            # {list(ce.normal_feeders)},
-            # {list(ce.normal_lv_feeders)},
-            # {ce.num_names()},
-            # {list(ce.names)},
-            # {ce.name},
-            # {ce.num_operational_restrictions()},
-            # {list(ce.operational_restrictions)}
-            # {ce.num_usage_points()},
-            # {list(ce.usage_points)},
-            # {ce.num_containers()},
-            # {ce.num_current_containers()},
-            # {list(ce.containers)},
-            # {ce.num_terminals()},
-            # {list(ce.terminals)},
-            # {ce.__str__()}/n"""
+            # line2 = f"""{ec.mrid},
+            # {ec.base_voltage},
+            # {ec.asset_info},
+            # {ec.commissioned_date},
+            # {ec.description},
+            # {ec.in_service},
+            # {ec.location},
+            # {ec.num_sites()},
+            # {list(ec.sites)},
+            # {ec.num_substations()},
+            # {list(ec.substations)},
+            # {ec.normally_in_service},
+            # {ec.has_controls}
+            # {ec.num_controls},
+            # {ec.base_voltage_value},
+            # {list(ec.current_containers)},
+            # {ec.num_normal_feeders()},
+            # {list(ec.current_feeders)},
+            # {list(ec.current_lv_feeders)},
+            # {list(ec.normal_feeders)},
+            # {list(ec.normal_lv_feeders)},
+            # {ec.num_names()},
+            # {list(ec.names)},
+            # {ec.name},
+            # {ec.num_operational_restrictions()},
+            # {list(ec.operational_restrictions)}
+            # {ec.num_usage_points()},
+            # {list(ec.usage_points)},
+            # {ec.num_containers()},
+            # {ec.num_current_containers()},
+            # {list(ec.containers)},
+            # {ec.num_terminals()},
+            # {list(ec.terminals)},
+            # {ec.__str__()}/n"""
             
             # print(line2)
 

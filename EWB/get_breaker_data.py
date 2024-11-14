@@ -21,7 +21,8 @@ class breaker_data:
         basepath = "./EWB/outputs"
         self.data_path = f"{basepath}/{name}_{now}.csv"
         self.connections_path = f"{basepath}/{name}_connections_{now}.csv"
-        self.network = ZepbenClient().get_zepben_client("PTN14")
+        self.network = ZepbenClient().get_zepben_client("PTN-014")
+        self.cls = Breaker
 
         if not os.path.exists(f"{basepath}"):
             os.makedirs(f"{basepath}")
@@ -30,9 +31,9 @@ class breaker_data:
     def get_all_connections(self):
         filename = self.connections_path
         cleanup(filename)
-        for eq in self.network.objects(Breaker):
-            #connections = [cr.from_equip.mrid for cr in connected_equipment(eq)]
-            connections = [(f"from: {cr.from_equip.mrid}", f"to: {cr.to_equip.mrid}") for cr in connected_equipment(eq)]
+        for eq in self.network.objects(self.cls):
+            connections = [(f"from: {cr.from_equip.__str__()}", f"to: {cr.to_equip.__str__()}") for cr in connected_equipment(eq)]
+            # connections = [(f"from: {cr.from_equip.mrid}", f"to: {cr.to_equip.mrid}") for cr in connected_equipment(eq)]
             line = f"{eq.__str__()}';'mrid: {eq.mrid}';'connnections: {connections}"
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
@@ -49,57 +50,57 @@ class breaker_data:
         headers = "mrid,__str__,connections,base_voltage,asset_info,commissioned_date,description,in_service,location,num_sites,listsites,num_substations,listsubstations,normally_in_service,has_controls},num_controls,base_voltage_value,listcurrent_containers,num_normal_feeders,listcurrent_feeders,listcurrent_lv_feeders,listnormal_feeders,listnormal_lv_feeders,num_names,listnames,name,num_operational_restrictions,listoperational_restrictions},num_usage_points,usage_points,num_containers,num_current_containers,containers,num_terminals,terminals"
         create_csv(f"./{filename}", *headers.split(','))
 
-        for ce in self.network.objects(Breaker):
-            connections = [(f"from: {cr.from_equip.mrid}", f"to: {cr.to_equip.mrid}") for cr in connected_equipment(ce)]
-            line = f"'{ce.mrid}';'{ce.__str__()}';'{connections}';'{ce.base_voltage}';'{ce.asset_info}';'{ce.commissioned_date}';'{ce.description}';'{ce.in_service}';'{ce.location}';'{ce.num_sites()}';'{list(ce.sites)}';'{ce.num_substations()}';'{list(ce.substations)}';'{ce.normally_in_service}';'{ce.has_controls}';'{ce.num_controls}';'{ce.base_voltage_value}';'{list(ce.current_containers)}';'{ce.num_normal_feeders()}';'{list(ce.current_feeders)}';'{list(ce.current_lv_feeders)}';'{list(ce.normal_feeders)}';'{list(ce.normal_lv_feeders)}';'{ce.num_names()}';'{list(ce.names)}';'{ce.name}';'{ce.num_operational_restrictions()}';'{list(ce.operational_restrictions)}';'{ce.num_usage_points()}';'{list(ce.usage_points)}';'{ce.num_containers()}';'{ce.num_current_containers()}';'{list(ce.containers)}';'{ce.num_terminals()}';'{list(ce.terminals)}"
-            
+        for b in self.network.objects(self.cls):
+            # connections = [(f"from: {cr.from_equip.mrid}", f"to: {cr.to_equip.mrid}") for cr in connected_equipment(ce)]
+            connections = [(f"from: {cr.from_equip.__str__()}", f"to: {cr.to_equip.__str__()}") for cr in connected_equipment(b)]
+            line = f"'{b.mrid}';'{b.__str__()}';'{connections}';'{b.base_voltage}';'{b.asset_info}';'{b.commissioned_date}';'{b.description}';'{b.in_service}';'{b.location}';'{b.num_sites()}';'{list(b.sites)}';'{b.num_substations()}';'{list(b.substations)}';'{b.normally_in_service}';'{b.has_controls}';'{b.num_controls}';'{b.base_voltage_value}';'{list(b.current_containers)}';'{b.num_normal_feeders()}';'{list(b.current_feeders)}';'{list(b.current_lv_feeders)}';'{list(b.normal_feeders)}';'{list(b.normal_lv_feeders)}';'{b.num_names()}';'{list(b.names)}';'{b.name}';'{b.num_operational_restrictions()}';'{list(b.operational_restrictions)}';'{b.num_usage_points()}';'{list(b.usage_points)}';'{b.num_containers()}';'{b.num_current_containers()}';'{list(b.containers)}';'{b.num_terminals()}';'{list(b.terminals)}"
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 
-            # line2 = f"""{ce.mrid},
-            # {ce.length},
-            # {ce.per_length_sequence_impedance},
-            # {ce.design_rating},
-            # {ce.wire_info},
-            # {ce.base_voltage},
-            # {ce.asset_info},
-            # {ce.commissioned_date},
-            # {ce.description},
-            # {ce.in_service},
-            # {ce.location},
-            # {ce.num_sites()},
-            # {list(ce.sites)},
-            # {ce.num_substations()},
-            # {list(ce.substations)},
-            # {ce.normally_in_service},
-            # {ce.has_controls}
-            # {ce.num_controls},
-            # {ce.base_voltage_value},
-            # {list(ce.current_containers)},
-            # {ce.num_normal_feeders()},
-            # {list(ce.current_feeders)},
-            # {list(ce.current_lv_feeders)},
-            # {list(ce.normal_feeders)},
-            # {list(ce.normal_lv_feeders)},
-            # {ce.num_names()},
-            # {list(ce.names)},
-            # {ce.name},
-            # {ce.num_operational_restrictions()},
-            # {list(ce.operational_restrictions)}
-            # {ce.num_usage_points()},
-            # {list(ce.usage_points)},
-            # {ce.num_containers()},
-            # {ce.num_current_containers()},
-            # {list(ce.containers)},
-            # {ce.num_terminals()},
-            # {list(ce.terminals)},
-            # {ce.__str__()}/n"""
+            # line2 = f"""{b.mrid},
+            # {b.length},
+            # {b.per_length_sequence_impedance},
+            # {b.design_rating},
+            # {b.wire_info},
+            # {b.base_voltage},
+            # {b.asset_info},
+            # {b.commissioned_date},
+            # {b.description},
+            # {b.in_service},
+            # {b.location},
+            # {b.num_sites()},
+            # {list(b.sites)},
+            # {b.num_substations()},
+            # {list(b.substations)},
+            # {b.normally_in_service},
+            # {b.has_controls}
+            # {b.num_controls},
+            # {b.base_voltage_value},
+            # {list(b.current_containers)},
+            # {b.num_normal_feeders()},
+            # {list(b.current_feeders)},
+            # {list(b.current_lv_feeders)},
+            # {list(b.normal_feeders)},
+            # {list(b.normal_lv_feeders)},
+            # {b.num_names()},
+            # {list(b.names)},
+            # {b.name},
+            # {b.num_operational_restrictions()},
+            # {list(b.operational_restrictions)}
+            # {b.num_usage_points()},
+            # {list(b.usage_points)},
+            # {b.num_containers()},
+            # {b.num_current_containers()},
+            # {list(b.containers)},
+            # {b.num_terminals()},
+            # {list(b.terminals)},
+            # {b.__str__()}/n"""
             
             # print(line2)
 
     def get_from_and_to_connections_byBreakertID(self, id):
         
-        line = self.network.get(id, Breaker)
+        line = self.network.get(id, self.cls)
         connections = [(f"from: {cr.from_equip.mrid}", f"to: {cr.to_equip.mrid}") for cr in connected_equipment(line)]
         print(f"|| connections: {connections}")
         
