@@ -8,4 +8,4 @@ def cleanup(filename):
 def log(filename, line):
     with open(filename, 'a') as file: 
         print(f"{line}")
-        file.write(f"{line}")  
+        file.write(f"{line}\n")  

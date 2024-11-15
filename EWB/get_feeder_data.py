@@ -35,48 +35,13 @@ def run():
     
     client = SyncNetworkConsumerClient(channel=channel)
     network = client.service
-    feeder_mrid = "PTN14"
+    feeder_mrid = "PTN-014"
     client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
     feeder = network.get(feeder_mrid, Feeder)
 
-    line = network.get("513540", AcLineSegment)
-    connections = [(cr.from_equip.mrid, cr.to_equip.mrid) for cr in connected_equipment(line)]
+    dist_transformers = []
+    for feeder in network.objects(Feeder):
 
-    #print(connections)
-
-    cleanup()
-
-    # log(list(feeder.current_equipment))
-    # log(list(feeder.current_equipment).__len__())
-
-    # log(feeder.get_current_equipment('747805'))
-    # log(feeder.get_current_equipment('747805').asset_info)
-    # log(feeder.get_current_equipment('747805').commissioned_date)
-    # log(list(feeder.get_current_equipment('747805').containers))
-    
-    # log(list(feeder.get_current_equipment('747805').containers).__len__())
-    # for i in list(feeder.get_current_equipment('747805').containers):
-    #     log(f"-{i}")
-    #     log(f"-{i.mrid}")
-
-    #     for x in list(i.current_equipment):
-    #         log(f"----{x}")
-    #         log(f"----{x.mrid}")
-
-    # for eq in network.objects(AcLineSegment):
-
-    #     connections = [cr.from_equip.mrid for cr in connected_equipment(eq)]
-    #     print(f"connnections: {connections}")
-    #     print(f"eq mrid: {eq.mrid}")
-    #     #print(f"name {eq.__str__()}")
-
-    for eq in network.objects(Breaker):
-
-        connections = [cr.from_equip.mrid for cr in connected_equipment(eq)]
-        print(f"connnections: {connections}")
-        print(f"eq mrid: {eq.mrid}")
-        #print(f"name {eq.__str__()}")
-
-
-    
+        dist_transformers = [pt for pt in feeder.equipment if isinstance(pt, PowerTransformer) and pt.function == TransformerFunctionKind.distributionTransformer] 
+        print(f"{feeder.__str__()} - {dist_transformers}") 
 run()

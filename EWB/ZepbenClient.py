@@ -7,14 +7,12 @@ class ZepbenClient:
     def get_zepben_client(self, feeder_mrid):
 
         basepath = "./EWB"
-
         
         channel = connect_with_secret(host="rdvewb101.powerdev.dev.int",
                                         rpc_port=443,
                                         client_id="e2dd8725-2887-4711-9236-35d60f1b279b",
-
                                         client_secret="gx18Q~gO7wog7OkW4TYLmmd6Deu1Nerwu__giaWD",
-                                        ca_filename="./certificate.crt",
+                                        ca_filename=f".{basepath}/certificate.crt",
                                         verify_conf=False)
         
     

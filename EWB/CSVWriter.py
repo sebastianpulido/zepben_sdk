@@ -5,3 +5,6 @@ def create_csv(file_name, *args):
         writer = csv.writer(file)
         # Write each row as separate entries
         writer.writerow(args)
+
+def create_csv_multiple_rows(file_name, *args):
+    pass 
