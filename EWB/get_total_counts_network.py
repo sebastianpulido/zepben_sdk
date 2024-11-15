@@ -31,7 +31,6 @@ class total_counts_network:
 
         log(self.data_path, f"FEEDER MRID: {self.feeder_mrid}")
         for clss in self.clss:
-            # print(clss)
             
             # Log the name of the class (using __name__)
             log(self.data_path, f"-- {clss.__name__}".capitalize()) 
