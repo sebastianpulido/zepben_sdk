@@ -21,7 +21,6 @@ class total_counts_network:
         self.data_path = f"{basepath}/{name}_{now}.txt"
         self.network = ZepbenClient().get_zepben_client(self.feeder_mrid)
         self.clss = [ConductingEquipment, ConnectivityNode, Fuse, Conductor, PowerTransformer, Circuit, Loop, PowerSystemResource, Terminal, Meter, PowerTransformer, Breaker, EnergyConsumer, LvFeeder, AcLineSegment, UsagePoint, Equipment, Switch, Feeder, BaseService, GeographicalRegion, BusbarSection, Substation]
- 
 
         if not os.path.exists(f"{basepath}"):
             os.makedirs(f"{basepath}")
@@ -32,8 +31,7 @@ class total_counts_network:
         log(self.data_path, f"FEEDER MRID: {self.feeder_mrid}")
         for clss in self.clss:
             
-            # Log the name of the class (using __name__)
-            log(self.data_path, f"-- {clss.__name__}".capitalize()) 
+            log(self.data_path, f"-- {clss.__name__}".upper()) 
 
             # Retrieve all objects of the current class type only once
             objects_of_clss = self.network.objects(clss)
