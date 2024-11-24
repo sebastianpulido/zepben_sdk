@@ -31,5 +31,6 @@ def reformat_connections(connections):
     pairs = "\n".join(pairs)
     print(pairs)
 
+
 # Apply the function to the 'connections' column
-df['connections'] = df['connections'].apply(reformat_connections)
+# df['connections'] = df['connections'].apply(reformat_connections)

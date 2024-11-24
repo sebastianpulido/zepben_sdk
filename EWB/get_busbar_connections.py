@@ -11,12 +11,16 @@ from zepben.evolve.streaming.get.network_consumer import SyncNetworkConsumerClie
 from zepben.protobuf.nc.nc_requests_pb2 import IncludedEnergizedContainers
 from zepben.evolve import PerLengthSequenceImpedance, Conductor, PowerTransformer, Circuit, Loop, PowerSystemResource, ConnectivityNode, Terminal, Meter, ConductingEquipment, PowerTransformer, Breaker, EnergyConsumer, LvFeeder, AcLineSegment, connect_with_secret, TransformerFunctionKind, connected_equipment, UsagePoint, Equipment, Switch, Feeder, BaseService, GeographicalRegion, BusbarSection, Substation
 
-class ZepbenBusbarConnections:
+class BusbarConnections:
     def __init__(self, busbar_mrid: str):
         now = datetime.datetime.now().strftime("%d%m%Y-%H%M")
+        now = datetime.datetime.now().strftime("%d%m%Y")
         self.basepath = "./EWB/outputs"
-        self.connections_path = f"./EWB/outputs/busbar_connections_{busbar_mrid}_{now}.csv"
-        self.busbar_mrid = '224279'
+        self.connections_path = f"./EWB/outputs/busbar_connections_{now}.txt"
+        self.busbar_mrid = busbar_mrid
+        self.feeder_mrid = "PTN-014"
+        self.network = ZepbenClient().get_zepben_client(self.feeder_mrid)
+        self.cls = Feeder
 
         if not os.path.exists(f"{self.basepath}"):
             os.makedirs(f"{self.basepath}")
@@ -42,20 +46,19 @@ class ZepbenBusbarConnections:
                 include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS
             ).throw_on_error()
 
-        return client2.service  # Returns the network service
-
+        return client2.service  
+    
     def get_busbar_connections(self):
         """Retrieve and log connections related to the specified busbar."""
         filename = self.connections_path
         cleanup(filename)
 
         # Write CSV headers
-        headers = ["Busbar_MRID", "Connected_Feeder_MRID", "Feeder_Name", "Connected_Substation_MRID", 
-                   "Substation_Name", "Connected_Supply_Point_MRID", "Supply_Point_Name"]
-        create_csv(filename, *headers)
+        # headers = ["Busbar_MRID", "Connected_Feeder_MRID", "Feeder_Name", "Connected_Substation_MRID", "Substation_Name", "Connected_Supply_Point_MRID", "Supply_Point_Name"]
+        # create_csv(filename, *headers)
 
         # Retrieve the busbar by its MRID
-        busbar = self.network.get_object_by_mrid(self.busbar_mrid)
+        busbar = self.network.get(self.busbar_mrid, BusbarSection)
         if not busbar:
             log(filename, f"No busbar found with MRID: {self.busbar_mrid}")
             return
@@ -65,9 +68,15 @@ class ZepbenBusbarConnections:
         connected_substations = []
         connected_supply_points = []
 
+        log(filename, f"busbar: {busbar.__str__()}")
+
         for connection in connected_equipment(busbar):
+            # log(filename, f"connection: {connection}")
             from_equip = connection.from_equip
             to_equip = connection.to_equip
+
+            # log(filename, f"from_equip: {from_equip}")
+            log(filename, f"to_equip: {to_equip}")
 
             # Check for feeder connections
             if isinstance(to_equip, Feeder):
@@ -103,7 +112,6 @@ class ZepbenBusbarConnections:
         pass
 
 if __name__ == "__main__":
-    # Replace 'YOUR_BUSBAR_MRID' with the actual MRID of the busbar you are interested in
-    busbar_mrid = 'YOUR_BUSBAR_MRID'
-    data_fetcher = ZepbenBusbarConnections(busbar_mrid)
+    busbar_mrid = '224482'
+    data_fetcher = BusbarConnections(busbar_mrid)
     data_fetcher.get_busbar_connections()

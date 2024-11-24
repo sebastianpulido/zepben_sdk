@@ -26,7 +26,6 @@ class acLineSegment_data:
 
         if not os.path.exists(f"{basepath}"):
             os.makedirs(f"{basepath}")
-            
     
     def get_all_connections(self):
         filename = self.connections_path

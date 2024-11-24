@@ -19,6 +19,7 @@ class lv_feeder_data:
         now = datetime.datetime.now().strftime("%d%m%Y")
         #now = datetime.datetime.now().strftime("%d%m%Y-%H%M")
         basepath = "./EWB/outputs"
+        self.data = f"{basepath}/{name}_{now}.txt"
         self.data_path = f"{basepath}/{name}_{now}.csv"
         self.connections_path = f"{basepath}/{name}_connections_{now}.csv"
         self.network = ZepbenClient().get_zepben_client("PTN-014")
@@ -60,32 +61,30 @@ class lv_feeder_data:
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
             
-            line2 = f"""
-            mrid: {pt.mrid},
-            __str__: {pt.__str__()},
-            name: {pt.name},
-            description: {pt.description},
-            location: {pt.location},
-            asset_info: {pt.asset_info},
-            num_current_equipment: {pt.num_current_equipment()},
-            num_equipment: {pt.num_equipment()},
-            num_controls: {pt.num_controls},
-            num_names: {pt.num_names()},
-            asset_info: {pt.asset_info},
-            num_energized_loops: {list(pt.current_equipment)},
-            has_controls: {pt.has_controls},
-            names: {list(pt.names)},
-            normal_head_terminal: {pt.normal_head_terminal},
-            normal_lv_feeders: {_normal_lv_feeders},
-            normal_feeders: {_normal_feeders},
-            _current_feeders: {_current_feeders},
-            _lv_current_feeders: {_current_lv_feeders},
-            ddddequipment: {list(pt.equipment) if pt.equipment is not None else []}
-
-
-            \n"""
+            # line2 = f"""
+            # mrid: {pt.mrid},
+            # __str__: {pt.__str__()},
+            # name: {pt.name},
+            # description: {pt.description},
+            # location: {pt.location},
+            # asset_info: {pt.asset_info},
+            # num_current_equipment: {pt.num_current_equipment()},
+            # num_equipment: {pt.num_equipment()},
+            # num_controls: {pt.num_controls},
+            # num_names: {pt.num_names()},
+            # asset_info: {pt.asset_info},
+            # num_energized_loops: {list(pt.current_equipment)},
+            # has_controls: {pt.has_controls},
+            # names: {list(pt.names)},
+            # normal_head_terminal: {pt.normal_head_terminal},
+            # normal_lv_feeders: {_normal_lv_feeders},
+            # normal_feeders: {_normal_feeders},
+            # _current_feeders: {_current_feeders},
+            # _lv_current_feeders: {_current_lv_feeders},
+            # equipment: {list(pt.equipment) if pt.equipment is not None else []}
+            # \n"""
             
-            print(line2)
+            # log(self.data, line2.strip())
         
 data = lv_feeder_data()
 data.get_lv_feeder_data()
