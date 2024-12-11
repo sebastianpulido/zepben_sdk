@@ -100,5 +100,5 @@ class fuse_data:
         print(f"|| connections: {connections}")
         
 data = fuse_data()
-data.get_all_connections()
+# data.get_all_connections()
 data.get_fuse_data()

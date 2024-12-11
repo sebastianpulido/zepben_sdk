@@ -19,60 +19,52 @@ class substation_data:
         now = datetime.datetime.now().strftime("%d%m%Y")
         #now = datetime.datetime.now().strftime("%d%m%Y-%H%M")
         basepath = "./EWB/outputs"
-        self.data_path = f"{basepath}/{name}_{now}.csv"
-        self.connections_path = f"{basepath}/{name}_connections_{now}.csv"
-        self.network = ZepbenClient().get_zepben_client("PTN-014")
+        feeder_mrid = "PTN-014"
+        self.data_path = f"{basepath}/{feeder_mrid}_{name}_{now}.csv"
+        self.connections_path = f"{basepath}/{feeder_mrid}_{name}_connections_{now}.csv"
+        self.network = ZepbenClient().get_zepben_client(feeder_mrid)
         self.cls = Substation
 
         if not os.path.exists(f"{basepath}"):
             os.makedirs(f"{basepath}")
             
-    
-    def get_all_connections(self):
-        filename = self.connections_path
-        cleanup(filename)
-        for eq in self.network.objects(self.cls):
-            # print(f"\nequipment: {list(eq.equipment)[0]}\n")
-            first_item = list(eq.equipment)[0] if eq.equipment and list(eq.equipment) else None
-            print(first_item)
-
-
     def get_substation_data(self):
         filename = self.data_path
-        cleanup(filename)
-        headers = "mrid,__str__,description,num_circuits,num_controls,num_current_equipment,num_energized_loops,num_equipment,num_feeders,num_loops,num_names,asset_info,circuits,loops,energized_loops,feeders,equipment"
-        create_csv(f"./{filename}", *headers.split(','))
+        # cleanup(filename)
+        # headers = "mrid,__str__,description,num_circuits,num_controls,num_current_equipment,num_energized_loops,num_equipment,num_feeders,num_loops,num_names,asset_info,circuits,loops,energized_loops,feeders,equipment"
+        # create_csv(f"./{filename}", *headers.split(','))
 
-        for pt in self.network.objects(self.cls): # self.cls = Substation
+        for pt in self.network.objects(Substation): # self.cls = Substation
+            print(pt.num_circuits())
+            print(list(pt.circuits))
 
-            line = f"'{pt.mrid}';'{pt.__str__()}';'{pt.description}';'{pt.num_circuits()}';'{pt.num_controls}';'{pt.num_current_equipment()}';'{pt.num_energized_loops()}';'{pt.num_equipment()}';'{pt.num_feeders()}';'{pt.num_loops()}';'{pt.num_names()}';'{pt.asset_info}';'{list(pt.circuits)}';'{list(pt.loops)}';'{list(pt.energized_loops)}';'{list(pt.feeders)}';'{list(pt.equipment) if pt.equipment is not None else []}"
-            cleaned_row = [value.strip("'") for value in line.split("';'")]
-            create_csv(f"./{filename}", *cleaned_row)
+            # line = f"'{pt.mrid}';'{pt.__str__()}';'{pt.description}';'{pt.num_circuits()}';'{pt.num_controls}';'{pt.num_current_equipment()}';'{pt.num_energized_loops()}';'{pt.num_equipment()}';'{pt.num_feeders()}';'{pt.num_loops()}';'{pt.num_names()}';'{pt.asset_info}';'{list(pt.circuits)}';'{list(pt.loops)}';'{list(pt.energized_loops)}';'{list(pt.feeders)}';'{list(pt.equipment) if pt.equipment is not None else []}"
+            # cleaned_row = [value.strip("'") for value in line.split("';'")]
+            # create_csv(f"./{filename}", *cleaned_row)
 
-            line2 = f"""
-            mrid: {pt.mrid},
-            __str__: {pt.__str__()},
-            name: {pt.name},
-            description: {pt.description}
-            num_circuits: {pt.num_circuits()},
-            num_controls: {pt.num_controls},
-            num_current_equipment: {pt.num_current_equipment()},
-            num_energized_loops: {pt.num_energized_loops()},
-            num_equipment: {pt.num_equipment()},
-            num_feeders: {pt.num_feeders()},
-            num_loops: {pt.num_loops()},
-            num_names: {pt.num_names()},
-            asset_info: {pt.asset_info},
-            circuits(): {list(pt.circuits)},
-            loops(): {list(pt.loops)},
-            energized_loops(): {list(pt.energized_loops)},
-            feeders(): {list(pt.feeders)},
-            equipment: {list(pt.equipment) if pt.equipment is not None else []}
+            # line2 = f"""
+            # mrid: {pt.mrid},
+            # __str__: {pt.__str__()},
+            # name: {pt.name},
+            # description: {pt.description}
+            # num_circuits: {pt.num_circuits()},
+            # num_controls: {pt.num_controls},
+            # num_current_equipment: {pt.num_current_equipment()},
+            # num_energized_loops: {pt.num_energized_loops()},
+            # num_equipment: {pt.num_equipment()},
+            # num_feeders: {pt.num_feeders()},
+            # num_loops: {pt.num_loops()},
+            # num_names: {pt.num_names()},
+            # asset_info: {pt.asset_info},
+            # circuits(): {list(pt.circuits)},
+            # loops(): {list(pt.loops)},
+            # energized_loops(): {list(pt.energized_loops)},
+            # feeders(): {list(pt.feeders)},
+            # equipment: {list(pt.equipment) if pt.equipment is not None else []}
 
-            \n"""
+            # \n"""
             
-            print(line2)
+            # print(line2)
         
 data = substation_data()
-# data.get_all_connections()
 data.get_substation_data()

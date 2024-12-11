@@ -19,9 +19,10 @@ class acLineSegment_data:
         now = datetime.datetime.now().strftime("%d%m%Y")
         #now = datetime.datetime.now().strftime("%d%m%Y-%H%M")
         basepath = "./EWB/outputs"
-        self.data_path = f"{basepath}/{name}_{now}.csv"
+        feeder_mrid = "PTN-011"
+        self.data_path = f"{basepath}/{feeder_mrid}_{name}_{now}.csv"
         self.connections_path = f"{basepath}/{name}_connections_{now}.csv"
-        self.network = ZepbenClient().get_zepben_client("PTN-014")
+        self.network = ZepbenClient().get_zepben_client(feeder_mrid)
         self.cls = AcLineSegment
 
         if not os.path.exists(f"{basepath}"):
@@ -46,13 +47,13 @@ class acLineSegment_data:
         #     line = f'Number of {t.__name__} = {len(list(self.network.objects(t)))}s\n'
         #     log(self.data_path, line)
 
-        headers = "mrid,__str__,connections,length,per_length_sequence_impedance,design_rating,wire_info,is_underground,base_voltage,asset_info,commissioned_date,description,in_service,location,num_sites,listsites,num_substations,listsubstations,normally_in_service,has_controls},num_controls,base_voltage_value,listcurrent_containers,num_normal_feeders,listcurrent_feeders,listcurrent_lv_feeders,listnormal_feeders,listnormal_lv_feeders,num_names,listnames,name,num_operational_restrictions,listoperational_restrictions},num_usage_points,usage_points,num_containers,num_current_containers,containers,num_terminals,terminals"
+        headers = "mrid,__str__,connections,length,per_length_sequence_impedance,design_rating,wire_info,is_underground,base_voltage,asset_info,commissioned_date,description,in_service,location,num_sites,listsites,num_substations,listsubstations,normally_in_service,has_controls},num_controls,base_voltage_value,listcurrent_containers,num_normal_feeders,listcurrent_feeders,listcurrent_lv_feeders,listnormal_feeders,listnormal_lv_feeders,num_names,listnames,name,num_operational_restrictions,listoperational_restrictions},num_usage_points,usage_points,num_containers,num_current_containers,containers,num_terminals,terminals,location_points"
         create_csv(f"./{filename}", *headers.split(','))
 
         for ls in self.network.objects(self.cls):
             # connections = [(f"from: {cr.from_equip.mrid}", f"to: {cr.to_equip.mrid}") for cr in connected_equipment(ls)]
             connections = [(f"from: {cr.from_equip.__str__()}", f"to: {cr.to_equip.__str__()}") for cr in connected_equipment(ls)]
-            line = f"'{ls.mrid}';'{ls.__str__()}';'{connections}';'{ls.length}';'{ls.per_length_sequence_impedance}';'{ls.design_rating}';'{ls.wire_info}';'{ls.is_underground()}';'{ls.base_voltage}';'{ls.asset_info}';'{ls.commissioned_date}';'{ls.description}';'{ls.in_service}';'{ls.location}';'{ls.num_sites()}';'{list(ls.sites)}';'{ls.num_substations()}';'{list(ls.substations)}';'{ls.normally_in_service}';'{ls.has_controls}';'{ls.num_controls}';'{ls.base_voltage_value}';'{list(ls.current_containers)}';'{ls.num_normal_feeders()}';'{list(ls.current_feeders)}';'{list(ls.current_lv_feeders)}';'{list(ls.normal_feeders)}';'{list(ls.normal_lv_feeders)}';'{ls.num_names()}';'{list(ls.names)}';'{ls.name}';'{ls.num_operational_restrictions()}';'{list(ls.operational_restrictions)}';'{ls.num_usage_points()}';'{list(ls.usage_points)}';'{ls.num_containers()}';'{ls.num_current_containers()}';'{list(ls.containers)}';'{ls.num_terminals()}';'{list(ls.terminals)}"
+            line = f"'{ls.mrid}';'{ls.__str__()}';'{connections}';'{ls.length}';'{ls.per_length_sequence_impedance}';'{ls.design_rating}';'{ls.wire_info}';'{ls.is_underground()}';'{ls.base_voltage}';'{ls.asset_info}';'{ls.commissioned_date}';'{ls.description}';'{ls.in_service}';'{ls.location}';'{ls.num_sites()}';'{list(ls.sites)}';'{ls.num_substations()}';'{list(ls.substations)}';'{ls.normally_in_service}';'{ls.has_controls}';'{ls.num_controls}';'{ls.base_voltage_value}';'{list(ls.current_containers)}';'{ls.num_normal_feeders()}';'{list(ls.current_feeders)}';'{list(ls.current_lv_feeders)}';'{list(ls.normal_feeders)}';'{list(ls.normal_lv_feeders)}';'{ls.num_names()}';'{list(ls.names)}';'{ls.name}';'{ls.num_operational_restrictions()}';'{list(ls.operational_restrictions)}';'{ls.num_usage_points()}';'{list(ls.usage_points)}';'{ls.num_containers()}';'{ls.num_current_containers()}';'{list(ls.containers)}';'{ls.num_terminals()}';'{list(ls.terminals)}';'{list(ls.location.points)}"
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 
@@ -106,5 +107,5 @@ class acLineSegment_data:
         
 data = acLineSegment_data()
 #data.get_from_and_to_connections_byAcLineSegmentID("513540")
-data.get_all_connections()
+# data.get_all_connections()
 data.get_acLineSegment_data()

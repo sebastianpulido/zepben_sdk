@@ -58,5 +58,5 @@ class conductor_data:
         print(f"|| connections: {connections}")
         
 data = conductor_data()
-data.get_all_connections()
+# data.get_all_connections()
 data.get_conductor_data()

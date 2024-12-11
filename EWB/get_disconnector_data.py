@@ -100,5 +100,5 @@ class disconnector_data:
         print(f"|| connections: {connections}")
         
 data = disconnector_data()
-data.get_all_connections()
+# data.get_all_connections()
 data.get_disconnector_data()

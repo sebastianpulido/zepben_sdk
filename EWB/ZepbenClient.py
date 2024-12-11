@@ -7,7 +7,7 @@ from zepben.evolve import connect_with_secret
 class ZepbenClient:
 
     async def get_client_and_network(self, feeder_mrid):
-        basepath = "./EWB"
+        basepath = "./EWB/config"
         channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
                                         rpc_port=50051,
                                         client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
@@ -26,15 +26,7 @@ class ZepbenClient:
         # with open("./config-fargate.json") as f:
             #     credentials = json.load(f)
 
-        basepath = "./EWB"
-        
-        channel = connect_with_secret(host="rdvewb101.powerdev.dev.int",
-                                        rpc_port=443,
-                                        client_id="e2dd8725-2887-4711-9236-35d60f1b279b",
-                                        client_secret="gx18Q~gO7wog7OkW4TYLmmd6Deu1Nerwu__giaWD",
-                                        ca_filename=f".{basepath}/certificate.crt",
-                                        verify_conf=False)
-        
+        basepath = "./EWB/config"
     
         channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
                                         rpc_port=50051,
@@ -51,7 +43,7 @@ class ZepbenClient:
 
     def get_client(self, feeder_mrid):
 
-        basepath = "./EWB"
+        basepath = "./EWB/config"
         
         channel = connect_with_secret(host="rdvewb101.powerdev.dev.int",
                                         rpc_port=443,

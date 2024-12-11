@@ -25,17 +25,6 @@ class conductingEquipment_data:
 
         if not os.path.exists(f"{basepath}"):
             os.makedirs(f"{basepath}")
-    
-
-    def get_all_connections(self):
-        filename = self.connections_path
-        cleanup(filename)
-        for eq in self.network.objects(self.cls):
-            connections = [(f"from: {cr.from_equip.__str__()}", f"to: {cr.to_equip.__str__()}") for cr in connected_equipment(eq)]
-            # connections = [(f"from: {cr.from_equip.mrid}", f"to: {cr.to_equip.mrid}") for cr in connected_equipment(eq)]
-            line = f"{eq.__str__()}';'mrid: {eq.mrid}';'connnections: {connections}"
-            cleaned_row = [value.strip("'") for value in line.split("';'")]
-            create_csv(f"./{filename}", *cleaned_row)
 
 
     def get_conductingEquipment_data(self):
@@ -56,50 +45,7 @@ class conductingEquipment_data:
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 
-            # line2 = f"""{ce.mrid},
-            # {ce.length},
-            # {ce.per_length_sequence_impedance},
-            # {ce.design_rating},
-            # {ce.wire_info},
-            # {ce.is_underground},
-            # {ce.base_voltage},
-            # {ce.asset_info},
-            # {ce.commissioned_date},
-            # {ce.description},
-            # {ce.in_service},
-            # {ce.location},
-            # {ce.num_sites()},
-            # {list(ce.sites)},
-            # {ce.num_substations()},
-            # {list(ce.substations)},
-            # {ce.normally_in_service},
-            # {ce.has_controls}
-            # {ce.num_controls},
-            # {ce.base_voltage_value},
-            # {list(ce.current_containers)},
-            # {ce.num_normal_feeders()},
-            # {list(ce.current_feeders)},
-            # {list(ce.current_lv_feeders)},
-            # {list(ce.normal_feeders)},
-            # {list(ce.normal_lv_feeders)},
-            # {ce.num_names()},
-            # {list(ce.names)},
-            # {ce.name},
-            # {ce.num_operational_restrictions()},
-            # {list(ce.operational_restrictions)}
-            # {ce.num_usage_points()},
-            # {list(ce.usage_points)},
-            # {ce.num_containers()},
-            # {ce.num_current_containers()},
-            # {list(ce.containers)},
-            # {ce.num_terminals()},
-            # {list(ce.terminals)},
-            # {ce.__str__()}/n"""
-            
-            # 18609680
-            # if ce.mrid == "18609680":
-            #     line2 = f"data: {list(ce.usage_points)}"
-            #     print(line2)
+    
 
     def get_from_and_to_connections_byConductingEquipmentID(self, id):
         
@@ -108,5 +54,5 @@ class conductingEquipment_data:
         print(f"|| connections: {connections}")
         
 data = conductingEquipment_data()
-data.get_all_connections()
+# data.get_all_connections()
 data.get_conductingEquipment_data()

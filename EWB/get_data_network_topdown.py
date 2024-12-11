@@ -45,6 +45,15 @@ class network_topdown_data:
         client = ZepbenClient().get_client(self.feeder_mrid)
         network_hierarchy = client.get_network_hierarchy()   
 
+        # Query assets of type STN_EARTH
+        for i in self.network.objects(ST)
+
+        # Display or process the assets
+        for asset in stn_earth_assets:
+            print(f"Asset ID: {asset.id}, Name: {asset.name}")
+
+        sys.exit(0)
+
         log(filename, "Network hierarchy:")
         for gr in network_hierarchy.result.geographical_regions.values():
             log(filename, f"# geographical_region: mrid:{gr.mrid} || name:{gr.name}")
@@ -53,6 +62,12 @@ class network_topdown_data:
                 log(filename, f"## subgeographical region: mrid:{sgr.mrid}")
                 
                 for sub in sgr.substations:
+
+                    log(filename, f"sub.circuits {list(sub.circuits)}")
+                    log(filename, f"sub.current_equipment {list(sub.current_equipment)}")
+
+                    continue
+
                     if (sub.mrid == '35795763'):
                         log(filename, list(sub.feeders))
                         breaker = acLineSegment = junction = disconnector = busbarSection = fuse = powerTransformer = energyConsumer = something = 0
@@ -138,14 +153,14 @@ class network_topdown_data:
                         else:
                             continue
 
-        log(filename, f"total breakers={breaker}")
-        log(filename, f"total acLineSegments={acLineSegment}")
-        log(filename, f"total junction={junction}")
-        log(filename, f"total disconnector={disconnector}")
-        log(filename, f"total busbarSection={busbarSection}")
-        log(filename, f"total fuse={fuse}")
-        log(filename, f"total energyConsumer={energyConsumer}")
-        log(filename, f"total powerTransformer={powerTransformer}")
+        # log(filename, f"total breakers={breaker}")
+        # log(filename, f"total acLineSegments={acLineSegment}")
+        # log(filename, f"total junction={junction}")
+        # log(filename, f"total disconnector={disconnector}")
+        # log(filename, f"total busbarSection={busbarSection}")
+        # log(filename, f"total fuse={fuse}")
+        # log(filename, f"total energyConsumer={energyConsumer}")
+        # log(filename, f"total powerTransformer={powerTransformer}")
         # log(filename, f"total something_else={something}")
 
 data = network_topdown_data()
