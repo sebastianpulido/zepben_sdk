@@ -17,9 +17,9 @@ class geometry_converter:
     def __init__(self, context, input_path):
         name = self.__class__.__name__
         now = datetime.datetime.now().strftime("%d%m%Y")
-        basepath = "./inputs" 
+        self.basepath = f"./inputs/{context}" 
         self.context = context
-        self.data_path = f"{basepath}/{context}_location_sdw.txt"
+        self.data_path = f"{self.basepath}/{context}_location_sdw.txt"
 
         cleanup(self.data_path) 
         with open(input_path, 'r') as file:
@@ -66,43 +66,7 @@ class geometry_converter:
         print("New WKB (WGS84):", new_wkb)
 
         return new_geometry
-
-
-    def convert_geometry_original(self, wkb_hex):
-        # Input WKB in hexadecimal format (example WKB)
-        # wkb_hex = "0102000020DB1E00000400000053303CA059134341E64D565D40704241767BF213581343412605969640704241E29A453F551343413C49E0FA417042410E11F0DE531343412DC7AF0143704241"
-        # wkb_hex = "0102000020DB1E000003000000EEAB20F7A11243417E57FCCC9B704241977E27AAA7124341D667BB0FC6704241510E3A5FA7124341ECB4ED79C6704241"
-
-        # Decode the WKB into a Shapely geometry
-        wkb_bytes = bytes.fromhex(wkb_hex)
-        geometry = loads(wkb_bytes)
-
-        # Print the original geometry (e.g., LineString)
-        print("Original Geometry:", geometry)
-
-        # Define the source CRS (EPSG:7899) and target CRS (EPSG:4326)
-        source_crs = "EPSG:7899"  # GDA2020 / MGA Zone
-        target_crs = "EPSG:4326"  # WGS84 longitude and latitude
-
-        # Create a transformer for CRS conversion
-        transformer = Transformer.from_crs(source_crs, target_crs, always_xy=True)
-
-        # Transform the coordinates of the geometry
-        transformed_coords = [
-            transformer.transform(x, y) for x, y in geometry.coords
-        ]
-
-        # Create a new geometry with the transformed coordinates
-        new_geometry = LineString(transformed_coords)
-
-        # Print the transformed geometry in WGS84
-        print("Transformed Geometry (WGS84):", new_geometry)
-
-        # Re-encode the transformed geometry as WKB with SRID=4326
-        new_wkb = dumps(new_geometry, srid=4326, hex=True)
-        print("New WKB (WGS84):", new_wkb)
-
-        return new_geometry
+    
     
     def prepare_input_files(self, path):
         list_of_points = []
@@ -133,9 +97,10 @@ class geometry_converter:
 
 
     def compare_geometries(self):
-        ewb_data = f"./inputs/{self.context}_location_ewb.txt"
-        sdw_data = f"./inputs/{self.context}_location_sdw.txt"
-        sdw_vs_ewb = f"./inputs/{self.context}_location_sdw_vs_ewb.csv"
+        self.basepath = f"./inputs/{context}" 
+        ewb_data = f"{self.basepath}/{self.context}_location_ewb.txt"
+        sdw_data = f"{self.basepath}/{self.context}_location_sdw.txt"
+        sdw_vs_ewb = f"{self.basepath}/{self.context}_location_sdw_vs_ewb.csv"
         ewb_points = self.prepare_input_files(ewb_data)
         sdw_points = self.prepare_input_files(sdw_data)
 
@@ -162,9 +127,6 @@ if __name__ == "__main__":
 
     context = sys.argv[1]
     path = sys.argv[2]
-
-    # converted_points = geometry_converter(context, path)
-    # print(f"{converted_points}")
 
     converted_points = geometry_converter(context, path).compare_geometries()
     print(f"{converted_points}")

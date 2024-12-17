@@ -63,5 +63,5 @@ class circuit_data:
             create_csv(f"./{filename}", *cleaned_row)
 
 data = circuit_data()
-# data.get_circuit_data()
-data.get_lvfeeders_data()
+data.get_circuit_data()
+# data.get_lvfeeders_data()

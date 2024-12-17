@@ -28,24 +28,10 @@ class acLineSegment_data:
         if not os.path.exists(f"{basepath}"):
             os.makedirs(f"{basepath}")
     
-    def get_all_connections(self):
-        filename = self.connections_path
-        cleanup(filename)
-        for eq in self.network.objects(self.cls):
-            connections = [(f"from: {cr.from_equip.__str__()}", f"to: {cr.to_equip.__str__()}") for cr in connected_equipment(eq)]
-            #onnections = [(f"from: {cr.from_equip.mrid}", f"to: {cr.to_equip.mrid}") for cr in connected_equipment(eq)]
-            line = f"{eq.__str__()}';'mrid: {eq.mrid}';'connnections: {connections}"
-            cleaned_row = [value.strip("'") for value in line.split("';'")]
-            create_csv(f"./{filename}", *cleaned_row)
-
 
     def get_acLineSegment_data(self):
         filename = self.data_path
         cleanup(filename)
-        # types = set(type(x) for x in self.network.objects(AcLineSegment))
-        # for t in types:
-        #     line = f'Number of {t.__name__} = {len(list(self.network.objects(t)))}s\n'
-        #     log(self.data_path, line)
 
         headers = "mrid,__str__,connections,length,per_length_sequence_impedance,design_rating,wire_info,is_underground,base_voltage,asset_info,commissioned_date,description,in_service,location,num_sites,listsites,num_substations,listsubstations,normally_in_service,has_controls},num_controls,base_voltage_value,listcurrent_containers,num_normal_feeders,listcurrent_feeders,listcurrent_lv_feeders,listnormal_feeders,listnormal_lv_feeders,num_names,listnames,name,num_operational_restrictions,listoperational_restrictions},num_usage_points,usage_points,num_containers,num_current_containers,containers,num_terminals,terminals,location_points"
         create_csv(f"./{filename}", *headers.split(','))
@@ -99,13 +85,12 @@ class acLineSegment_data:
             
             # print(line2)
 
-    def get_from_and_to_connections_byAcLineSegmentID(self, id):
-        
-        line = self.network.get(id, AcLineSegment)
-        connections = [(f"from: {cr.from_equip.mrid}", f"to: {cr.to_equip.mrid}") for cr in connected_equipment(line)]
-        print(f"|| connections: {connections}")
+    def get_acLineSegment_count(self):
+        types = set(type(x) for x in self.network.objects(self.cls))
+        for t in types:
+            line = f'Number of {t.__name__} = {len(list(self.network.objects(t)))}s\n'
+            log(self.data_path, line)
         
 data = acLineSegment_data()
-#data.get_from_and_to_connections_byAcLineSegmentID("513540")
-# data.get_all_connections()
 data.get_acLineSegment_data()
+data.get_acLineSegment_count()

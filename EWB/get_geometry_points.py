@@ -5,7 +5,7 @@ from pyproj import Transformer
 def convert_geometry():
     # Input WKB in hexadecimal format
     # Decode the WKB into a Shapely geometry
-    wkb_hex = "0104000020DB1E000001000000010100000095C6C538E612434131FDE3E11C734241"
+    wkb_hex = "0102000020DB1E000002000000AED7858818134341258DAE1AA7704241BC082A8A18134341B7E67567A7704241"
     wkb_bytes = bytes.fromhex(wkb_hex)
     geometry = loads(wkb_bytes)
 
