@@ -38,7 +38,7 @@ class circuit_data:
             if lvf.normal_head_terminal:
                 if isinstance(lvf.normal_head_terminal.conducting_equipment, Switch):
 
-                    if lvf.name.__contains__("WARRS-HIGH"):
+                    if lvf.name.__contains__("HIGH-MILLER"):
                         # this is a SDW circuit
                         circuits.append(f"{lvf.mrid},{lvf.name}")
 

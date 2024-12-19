@@ -38,11 +38,8 @@ class powerTransformer_data:
 
         for pt in self.network.objects(self.cls):
             connections = [(f"from: {cr.from_equip.__str__()}", f"to: {cr.to_equip.__str__()}") for cr in connected_equipment(pt)]
-
             end = ", ".join(f'{f}={v}' for e in pt.ends for f, v in values(e).items())
-
             line = f"'{pt.mrid}';'{pt.__str__()}';'{connections}';'{pt.base_voltage}';'{pt.asset_info}';'{pt.commissioned_date}';'{pt.description}';'{pt.in_service}';'{pt.location}';'{pt.num_sites()}';'{list(pt.sites)}';'{pt.num_substations()}';'{list(pt.substations)}';'{pt.normally_in_service}';'{pt.has_controls}';'{pt.num_controls}';'{pt.base_voltage_value}';'{list(pt.current_containers)}';'{pt.num_normal_feeders()}';'{list(pt.current_feeders)}';'{list(pt.current_lv_feeders)}';'{list(pt.normal_feeders)}';'{list(pt.normal_lv_feeders)}';'{pt.num_names()}';'{list(pt.names)}';'{pt.name}';'{pt.num_operational_restrictions()}';'{list(pt.operational_restrictions)}';'{pt.num_usage_points()}';'{list(pt.usage_points)}';'{pt.num_containers()}';'{pt.num_current_containers()}';'{list(pt.containers)}';'{pt.num_terminals()}';'{list(pt.terminals)}';'{list(pt.location.points)}';'{end}"
-            
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 

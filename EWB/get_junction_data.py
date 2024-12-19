@@ -38,7 +38,7 @@ class junction_data:
             create_csv(f"./{filename}", *cleaned_row)
 
 
-    def get_conductor_data(self):
+    def get_junction_data(self):
         filename = self.data_path
         cleanup(filename)
         headers = "mrid,__str__,connections,base_voltage,asset_info,commissioned_date,description,in_service,location,num_sites,listsites,num_substations,listsubstations,normally_in_service,has_controls},num_controls,base_voltage_value,listcurrent_containers,num_normal_feeders,listcurrent_feeders,listcurrent_lv_feeders,listnormal_feeders,listnormal_lv_feeders,num_names,listnames,name,num_operational_restrictions,listoperational_restrictions},num_usage_points,usage_points,num_containers,num_current_containers,containers,num_terminals,terminals,location"
@@ -51,13 +51,12 @@ class junction_data:
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 
+    def get_juction_byID(self,mrid):
 
-    def get_from_and_to_connections_byConductorID(self, id):
-        
-        line = self.network.get(id, self.cls)
-        connections = [(f"from: {cr.from_equip.mrid}", f"to: {cr.to_equip.mrid}") for cr in connected_equipment(line)]
-        print(f"|| connections: {connections}")
+        juction = self.network.get(mrid, Junction)
+        print(f"asset found:{juction}")
+
         
 data = junction_data()
-# data.get_all_connections()
-data.get_conductor_data()
+#data.get_junction_data()
+data.get_juction_byID("20134062")
