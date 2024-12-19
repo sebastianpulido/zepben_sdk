@@ -2,11 +2,21 @@ from shapely.wkb import loads, dumps
 from shapely.geometry import LineString, MultiPoint
 from pyproj import Transformer
 
-def convert_geometry():
+import sys
+from log import cleanup, log
+
+def convert_geometry(_hex: str):
     # Input WKB in hexadecimal format
     # Decode the WKB into a Shapely geometry
-    wkb_hex = "0102000020DB1E000002000000AED7858818134341258DAE1AA7704241BC082A8A18134341B7E67567A7704241"
-    wkb_bytes = bytes.fromhex(wkb_hex)
+    #wkb_hex = "0104000020DB1E0000010000000101000000C616E66B28134341529E37ACC5724241"
+    wkb_hex = _hex
+    try:
+        wkb_bytes = bytes.fromhex(wkb_hex)
+    except:
+        log("./inputs/out.txt", "<none>")
+        return ""
+
+    
     geometry = loads(wkb_bytes)
 
     # Print the original geometry type and geometry
@@ -37,12 +47,19 @@ def convert_geometry():
         raise ValueError(f"Unsupported geometry type: {geometry.geom_type}")
 
     # Print the transformed geometry in WGS84
-    print("Transformed Geometry (WGS84):", new_geometry)
+    print("Transformed Geometry (WGS84):", new_geometry) 
 
     # Re-encode the transformed geometry as WKB with SRID=4326
     new_wkb = dumps(new_geometry, srid=4326, hex=True)
     print("New WKB (WGS84):", new_wkb)
 
+    
+    log("./inputs/out.txt", new_geometry)
+
     return new_geometry
 
-convert_geometry()
+if __name__ == '__main__':
+    cleanup("./inputs/out.txt")
+    with open("./inputs/tmp.txt", 'r') as file:
+        for line in file:
+            convert_geometry(line)
