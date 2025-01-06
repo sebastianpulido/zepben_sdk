@@ -31,14 +31,12 @@ class substation_data:
     def get_substation_data(self):
         filename = self.data_path
         cleanup(filename)
-        headers = "mrid,__str__,description,num_circuits,num_controls,num_current_equipment,num_energized_loops,num_equipment,num_feeders,num_loops,num_names,asset_info,circuits,loops,energized_loops,feeders,equipment"
+        headers = "mrid,__str__,description,num_circuits,num_controls,num_current_equipment,num_energized_loops,num_equipment,num_feeders,num_loops,num_names,asset_info,circuits,loops,energized_loops,feeders,equipment,location"
         create_csv(f"./{filename}", *headers.split(','))
 
-        for pt in self.network.objects(Substation): # self.cls = Substation
-            # print(pt.num_circuits())
-            # print(list(pt.circuits))
+        for pt in self.network.objects(Substation):
 
-            line = f"'{pt.mrid}';'{pt.__str__()}';'{pt.description}';'{pt.num_circuits()}';'{pt.num_controls}';'{pt.num_current_equipment()}';'{pt.num_energized_loops()}';'{pt.num_equipment()}';'{pt.num_feeders()}';'{pt.num_loops()}';'{pt.num_names()}';'{pt.asset_info}';'{list(pt.circuits)}';'{list(pt.loops)}';'{list(pt.energized_loops)}';'{list(pt.feeders)}';'{list(pt.equipment) if pt.equipment is not None else []}"
+            line = f"'{pt.mrid}';'{pt.__str__()}';'{pt.description}';'{pt.num_circuits()}';'{pt.num_controls}';'{pt.num_current_equipment()}';'{pt.num_energized_loops()}';'{pt.num_equipment()}';'{pt.num_feeders()}';'{pt.num_loops()}';'{pt.num_names()}';'{pt.asset_info}';'{list(pt.circuits)}';'{list(pt.loops)}';'{list(pt.energized_loops)}';'{list(pt.feeders)}';'{list(pt.equipment) if pt.equipment is not None else []}';'{list(pt.location.points) if pt.location is not None else []}"
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 
