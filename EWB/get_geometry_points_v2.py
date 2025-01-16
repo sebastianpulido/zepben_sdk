@@ -8,7 +8,7 @@ from CSVWriter import create_csv
 from log import cleanup, log, log_geometry
 
 from shapely.wkb import loads, dumps
-from shapely.geometry import LineString, MultiPoint
+from shapely.geometry import LineString, MultiPoint, Point
 from pyproj import Transformer
 
 class geometry_converter:
@@ -55,6 +55,10 @@ class geometry_converter:
                 transformer.transform(point.x, point.y) for point in geometry.geoms
             ]
             new_geometry = MultiPoint(transformed_coords)
+        elif geometry.geom_type == "Point":
+            # Transform the coordinate of the Point
+            transformed_coord = transformer.transform(geometry.x, geometry.y)
+            new_geometry = Point(transformed_coord)
         else:
             raise ValueError(f"Unsupported geometry type: {geometry.geom_type}")
 
@@ -72,7 +76,7 @@ class geometry_converter:
         list_of_points = []
         with open(path, 'r') as ewb_file:
             for line in ewb_file:
-                line = line.replace("]", "").replace("[","").replace(", PositionPoint", "PositionPoint").replace("MULTIPOINT, y_position=", "")
+                line = line.replace("]", "").replace("[","").replace(", PositionPoint", "PositionPoint").replace("MULTIPOINT, y_position=", "").replace("POINT, y_position=", "")
                 points = line.split("PositionPoint")
                 for point in points:
                     if len(point) > 0:
