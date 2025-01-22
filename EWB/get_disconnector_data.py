@@ -21,7 +21,8 @@ class disconnector_data:
         basepath = "./EWB/outputs"
         self.data_path = f"{basepath}/{name}_{now}.csv"
         self.connections_path = f"{basepath}/{name}_connections_{now}.csv"
-        self.network = ZepbenClient().get_zepben_client("PTN-014")
+        # self.network = ZepbenClient().get_zepben_client("PTN-014")
+        self.network = ZepbenClient().get_zepben_network_all_feeders()
         self.cls = Disconnector
 
         if not os.path.exists(f"{basepath}"):
@@ -42,10 +43,6 @@ class disconnector_data:
     def get_disconnector_data(self):
         filename = self.data_path
         cleanup(filename)
-        # types = set(type(x) for x in self.network.objects(AcLineSegment))
-        # for t in types:
-        #     line = f'Number of {t.__name__} = {len(list(self.network.objects(t)))}s\n'
-        #     log(self.data_path, line)
 
         headers = "mrid,__str__,connections,base_voltage,asset_info,commissioned_date,description,in_service,location,num_sites,listsites,num_substations,listsubstations,normally_in_service,has_controls},num_controls,base_voltage_value,listcurrent_containers,num_normal_feeders,listcurrent_feeders,listcurrent_lv_feeders,listnormal_feeders,listnormal_lv_feeders,num_names,listnames,name,num_operational_restrictions,listoperational_restrictions},num_usage_points,usage_points,num_containers,num_current_containers,containers,num_terminals,terminals,location_points"
         create_csv(f"./{filename}", *headers.split(','))
@@ -56,42 +53,6 @@ class disconnector_data:
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 
-            # line2 = f"""{ce.mrid},
-            # {ce.base_voltage},
-            # {ce.asset_info},
-            # {ce.commissioned_date},
-            # {ce.description},
-            # {ce.in_service},
-            # {ce.location},
-            # {ce.num_sites()},
-            # {list(ce.sites)},
-            # {ce.num_substations()},
-            # {list(ce.substations)},
-            # {ce.normally_in_service},
-            # {ce.has_controls}
-            # {ce.num_controls},
-            # {ce.base_voltage_value},
-            # {list(ce.current_containers)},
-            # {ce.num_normal_feeders()},
-            # {list(ce.current_feeders)},
-            # {list(ce.current_lv_feeders)},
-            # {list(ce.normal_feeders)},
-            # {list(ce.normal_lv_feeders)},
-            # {ce.num_names()},
-            # {list(ce.names)},
-            # {ce.name},
-            # {ce.num_operational_restrictions()},
-            # {list(ce.operational_restrictions)}
-            # {ce.num_usage_points()},
-            # {list(ce.usage_points)},
-            # {ce.num_containers()},
-            # {ce.num_current_containers()},
-            # {list(ce.containers)},
-            # {ce.num_terminals()},
-            # {list(ce.terminals)},
-            # {ce.__str__()}/n"""
-            
-            # print(line2)
 
     def get_from_and_to_connections_byID(self, id):
         

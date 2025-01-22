@@ -41,11 +41,6 @@ class busbarSection_data:
         filename = self.data_path
         cleanup(filename)
 
-        # types = set(type(x) for x in self.network.objects(BusbarSection))
-        # for t in types:
-        #     line = f'Number of {t.__name__} = {len(list(self.network.objects(t)))}s\n'
-        #     self.log(self.data_path, line)
-
         headers = "mrid,__str__,connections,base_voltage,asset_info,commissioned_date,description,in_service,location,num_sites,listsites,num_substations,listsubstations,normally_in_service,has_controls,num_controls,base_voltage_value,listcurrent_containers,num_normal_feeders,listcurrent_feeders,listcurrent_lv_feeders,listnormal_feeders,listnormal_lv_feeders,num_names,listnames,name_obj,name,num_operational_restrictions,listoperational_restrictions},num_usage_points,usage_points,num_containers,num_current_containers,containers,num_terminals,terminals,location_points"
         create_csv(f"./{filename}", *headers.split(','))
 
@@ -56,50 +51,6 @@ class busbarSection_data:
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 
-            # line2 = f"""{bs.mrid},
-            # {bs.base_voltage},
-            # {bs.asset_info},
-            # {bs.commissioned_date},
-            # {bs.description},
-            # {bs.in_service},
-            # {bs.location},
-            # {bs.num_sites()},
-            # {list(bs.sites)},
-            # {bs.num_substations()},
-            # {list(bs.substations)},
-            # {bs.normally_in_service},
-            # {bs.has_controls}
-            # {bs.num_controls},
-            # {bs.base_voltage_value},
-            # {list(bs.current_containers)},
-            # {bs.num_normal_feeders()},
-            # {list(bs.current_feeders)},
-            # {list(bs.current_lv_feeders)},
-            # {list(bs.normal_feeders)},
-            # {list(bs.normal_lv_feeders)},
-            # {bs.num_names()},
-            # {list(bs.names)},
-            # {bs.name},
-            # {bs.num_operational_restrictions()},
-            # {list(bs.operational_restrictions)}
-            # {bs.num_usage_points()},
-            # {list(bs.usage_points)},
-            # {bs.num_containers()},
-            # {bs.num_current_containers()},
-            # {list(bs.containers)},
-            # {bs.num_terminals()},
-            # {list(bs.terminals)},
-            # {bs.__str__()},
-            # {bs.in_service}
-            # \n"""
-
-            # log(filename, line2)
-
-    def get_from_and_to_connections_byBusbarSectionID(self, id):
-        
-        busbar = self.network.get(id, BusbarSection)
-        connections = [(f"from: {cr.from_equip.mrid}", f"to: {cr.to_equip.mrid}") for cr in connected_equipment(busbar)]
-        print(f"|| connections: {connections}")
         
 data = busbarSection_data()
 # data.get_all_connections()

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 import pandas
 import json
+import datetime
 
 from zepben.protobuf.nc.nc_requests_pb2 import IncludedEnergizedContainers
 
@@ -51,7 +52,7 @@ def run_nmis():
 
     network_hierarchy = network_client.get_network_hierarchy().throw_on_error().value
 
-    feeder_mrid = "COO-022"
+    feeder_mrid = "PTN-014"
     print(f"Fetching Feeder {feeder_mrid}")
     network_client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
     for lvf in network_service.objects(LvFeeder):
@@ -98,7 +99,8 @@ def run_nmis():
                         NetworkNmi(nmi, node_id, "Active (A)", supply_type, terminal.phases.short_name, conductor_type, spid, pp.longitude, pp.latitude, circuit))
 
     df = pandas.DataFrame(network_nmis)
-    # df.to_csv("nmis.csv")
+    now = datetime.datetime.now().strftime("%d%m%Y")
+    df.to_csv(f"./EWB/outputs/{now}_nmis.csv")
 
     print(df)
 

@@ -1,5 +1,5 @@
 from shapely.wkb import loads, dumps
-from shapely.geometry import LineString, MultiPoint
+from shapely.geometry import LineString, MultiPoint, Point
 from pyproj import Transformer
 
 import sys
@@ -43,6 +43,10 @@ def convert_geometry(_hex: str):
             transformer.transform(point.x, point.y) for point in geometry.geoms
         ]
         new_geometry = MultiPoint(transformed_coords)
+    elif geometry.geom_type == "Point":
+            # Transform the coordinate of the Point
+            transformed_coord = transformer.transform(geometry.x, geometry.y)
+            new_geometry = Point(transformed_coord)
     else:
         raise ValueError(f"Unsupported geometry type: {geometry.geom_type}")
 
