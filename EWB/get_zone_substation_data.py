@@ -21,7 +21,7 @@ class substation_data:
         basepath = "./EWB/outputs"
         self.feeder_mrid = "PTN-014"
         self.data_path = f"{basepath}/{self.feeder_mrid}_{name}_data_{now}.txt"
-        self.equip_data_path = f"{basepath}/{self.feeder_mrid}_{name}_equipment_{now}.txt"
+        self.equip_data_path = f"{basepath}/{name}_equipment_{now}.txt"
         self.feeders_data_path = f"{basepath}/allfeeders_{name}_{now}.csv"
         # self.network = ZepbenClient().get_zepben_client(self.feeder_mrid)
         self.network, self.network_client = ZepbenClient().get_network_and_networkClient(self.feeder_mrid)
@@ -74,7 +74,7 @@ class substation_data:
 
             if _processed != _current:
                 print(f"zone_substation:{_current}")
-                line = f"{zone_substation.mrid}\n{list(zone_substation.equipment)}\n\n"
+                line = f"{f"zone substation:{_current} - feeder:{fdr} - mrid:{zone_substation.mrid}"}\n{list(zone_substation.equipment)}\n\n"
                 log(f"./{filename}", line)
                 _processed = _current
             
