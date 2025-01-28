@@ -26,18 +26,7 @@ class junction_data:
 
         if not os.path.exists(f"{basepath}"):
             os.makedirs(f"{basepath}")
-    
-
-    def get_all_connections(self):
-        filename = self.connections_path
-        cleanup(filename)
-        for eq in self.network.objects(self.cls):
-            connections = [(f"from: {cr.from_equip.__str__()}", f"to: {cr.to_equip.__str__()}") for cr in connected_equipment(eq)]
-            line = f"{eq.__str__()}';'mrid: {eq.mrid}';'connnections: {connections}"
-            cleaned_row = [value.strip("'") for value in line.split("';'")]
-            create_csv(f"./{filename}", *cleaned_row)
-
-
+  
     def get_junction_data(self):
         filename = self.data_path
         cleanup(filename)
@@ -58,5 +47,5 @@ class junction_data:
 
         
 data = junction_data()
-#data.get_junction_data()
-data.get_juction_byID("20134062")
+data.get_junction_data()
+# data.get_juction_byID("20134062")

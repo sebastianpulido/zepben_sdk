@@ -20,7 +20,7 @@ class feeder_data:
         #now = datetime.datetime.now().strftime("%d%m%Y-%H%M")
         basepath = "./EWB/outputs"
         self.data_path = f"{basepath}/{name}_{now}.csv"
-        self.connections_path = f"{basepath}/{name}_connections_{now}.csv"
+        self.txt_path = f"{basepath}/{name}_data_{now}.txt"
         self.network = ZepbenClient().get_zepben_client("PTN-014")
         self.cls = Feeder
 
@@ -35,6 +35,18 @@ class feeder_data:
             # print(f"\nequipment: {list(eq.equipment)[0]}\n")
             first_item = list(eq.equipment)[0] if eq.equipment and list(eq.equipment) else None
             print(first_item)
+
+    def get_list_of_elements(self):
+        filename = self.txt_path
+        cleanup(filename)
+
+        headers = f"mrid,normal_lv_feeders"
+        log(f"./{filename}", headers)
+
+        for fdr in self.network.objects(self.cls):
+            if fdr.mrid == 'PTN-014':
+                line = f"'{fdr.mrid}';'{list(fdr.normal_energized_lv_feeders)}"
+                log(f"./{filename}", line)
 
 
     def get_feeder_data(self):
@@ -102,3 +114,4 @@ class feeder_data:
         
 data = feeder_data()
 data.get_feeder_data()
+data.get_list_of_elements()

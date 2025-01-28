@@ -23,7 +23,7 @@ class circuit_data:
         self.feeder_mrid = "PTN-014"
         self.data_path = f"{basepath}/{self.feeder_mrid}_{name}_{now}.csv"
         self.network = ZepbenClient().get_zepben_client(self.feeder_mrid)
-        self.cls = Circuit
+        self.cls = LvFeeder
 
         if not os.path.exists(f"{basepath}"):
             os.makedirs(f"{basepath}")
