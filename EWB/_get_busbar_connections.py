@@ -106,10 +106,6 @@ class BusbarConnections:
         for supply_point_mrid, supply_point_name in connected_supply_points:
             create_csv(filename, self.busbar_mrid, "", "", "", "", supply_point_mrid, supply_point_name)
 
-    def connect_to_channel(self):
-        # Add the logic to establish a connection to your Zepben SDK channel here
-        # This is a placeholder to represent the connection setup
-        pass
 
 if __name__ == "__main__":
     busbar_mrid = '224482'

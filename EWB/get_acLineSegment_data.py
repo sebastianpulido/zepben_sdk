@@ -9,7 +9,7 @@ from log import cleanup, log
 from ZepbenClient import ZepbenClient
 from zepben.evolve.streaming.get.network_consumer import SyncNetworkConsumerClient
 from zepben.protobuf.nc.nc_requests_pb2 import IncludedEnergizedContainers
-from zepben.evolve import PerLengthSequenceImpedance, Conductor, PowerTransformer, Circuit, Loop, PowerSystemResource, ConnectivityNode, Terminal, Meter, ConductingEquipment, PowerTransformer, Breaker, EnergyConsumer, LvFeeder, AcLineSegment, connect_with_secret, TransformerFunctionKind, connected_equipment, UsagePoint, Equipment, Switch, Feeder, BaseService, GeographicalRegion, BusbarSection, Substation
+from zepben.evolve import PerLengthSequenceImpedance, Conductor, PowerTransformer, Circuit, Loop, PowerSystemResource, ConnectivityNode, Terminal, Meter, ConductingEquipment, PowerTransformer, Breaker, EnergyConsumer, LvFeeder, AcLineSegment, connect_with_secret, TransformerFunctionKind, connected_equipment, UsagePoint, Equipment, Switch, Feeder, BaseService, GeographicalRegion, BusbarSection, Substation, PhaseImpedanceData
 
 
 class acLineSegment_data:
@@ -47,49 +47,7 @@ class acLineSegment_data:
             connections = [(f"from: {cr.from_equip.__str__()}", f"to: {cr.to_equip.__str__()}") for cr in connected_equipment(ls)]
             line = f"'{ls.mrid}';'{ls.__str__()}';'{connections}';'{ls.length}';'{ls.per_length_sequence_impedance}';'{ls.design_rating}';'{ls.wire_info}';'{ls.is_underground()}';'{ls.base_voltage}';'{ls.asset_info}';'{ls.commissioned_date}';'{ls.description}';'{ls.in_service}';'{ls.location}';'{ls.num_sites()}';'{list(ls.sites)}';'{ls.num_substations()}';'{list(ls.substations)}';'{ls.normally_in_service}';'{ls.has_controls}';'{ls.num_controls}';'{ls.base_voltage_value}';'{list(ls.current_containers)}';'{ls.num_normal_feeders()}';'{list(ls.current_feeders)}';'{list(ls.current_lv_feeders)}';'{list(ls.normal_feeders)}';'{list(ls.normal_lv_feeders)}';'{ls.num_names()}';'{list(ls.names)}';'{ls.name}';'{ls.num_operational_restrictions()}';'{list(ls.operational_restrictions)}';'{ls.num_usage_points()}';'{list(ls.usage_points)}';'{ls.num_containers()}';'{ls.num_current_containers()}';'{list(ls.containers)}';'{ls.num_terminals()}';'{list(ls.terminals)}';'{list(ls.location.points)}';'{phases}"
             cleaned_row = [value.strip("'") for value in line.split("';'")]
-            create_csv(f"./{filename}", *cleaned_row)
-
-            # line2 = f"""{ls.mrid},
-            # {ls.length},
-            # {ls.per_length_sequence_impedance},
-            # {ls.design_rating},
-            # {ls.wire_info},
-            # {ls.is_underground},
-            # {ls.base_voltage},
-            # {ls.asset_info},
-            # {ls.commissioned_date},
-            # {ls.description},
-            # {ls.in_service},
-            # {ls.location},
-            # {ls.num_sites()},
-            # {list(ls.sites)},
-            # {ls.num_substations()},
-            # {list(ls.substations)},
-            # {ls.normally_in_service},
-            # {ls.has_controls}
-            # {ls.num_controls},
-            # {ls.base_voltage_value},
-            # {list(ls.current_containers)},
-            # {ls.num_normal_feeders()},
-            # {list(ls.current_feeders)},
-            # {list(ls.current_lv_feeders)},
-            # {list(ls.normal_feeders)},
-            # {list(ls.normal_lv_feeders)},
-            # {ls.num_names()},
-            # {list(ls.names)},
-            # {ls.name},
-            # {ls.num_operational_restrictions()},
-            # {list(ls.operational_restrictions)}
-            # {ls.num_usage_points()},
-            # {list(ls.usage_points)},
-            # {ls.num_containers()},
-            # {ls.num_current_containers()},
-            # {list(ls.containers)},
-            # {ls.num_terminals()},
-            # {list(ls.terminals)},
-            # {ls.__str__()}/n"""
-            
-            # print(line2)
+            create_csv(f"./{filename}", *cleaned_row) 
 
     def get_acLineSegment_count(self):
         types = set(type(x) for x in self.network.objects(self.cls))
