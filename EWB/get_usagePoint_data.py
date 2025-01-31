@@ -19,9 +19,9 @@ class usagePoint_data:
         #now = datetime.datetime.now().strftime("%d%m%Y-%H%M")
         self.basepath = "./EWB/outputs"
         self.feeder_mrid = "PTN-014"
-        self.data_path = f"{self.basepath}/{self.feeder_mrid}_{name}_{self.now}.csv"
-        self.network, self.network_client = ZepbenClient().get_network_and_networkClient(self.feeder_mrid)
-        self.cls = BusbarSection
+        self.data_path = f"{self.basepath}/{self.feeder_mrid}_{name}_{self.now}.txt"
+        # self.network, self.network_client = ZepbenClient().get_network_and_networkClient(self.feeder_mrid)
+        # self.cls = UsagePoint
         if not os.path.exists(f"{self.basepath}"):
             os.makedirs(f"{self.basepath}")
 
@@ -44,18 +44,18 @@ class usagePoint_data:
         network_service, customer_service = await ZepbenClient().get_network_customer_client_service(self.feeder_mrid)
 
         for usage_point in network_service.objects(UsagePoint):
-            print(f"Usage point: {usage_point.mrid}")
+            log(filename, f"Usage point: {usage_point.mrid}")
             for name in usage_point.names:
                 if name.type.name == "NMI":
-                    print(f"NMI: {name.name}")
-            print(f"Location: {usage_point.usage_point_location}")
+                    log(filename, f"NMI: {name.name}")
+            log(filename, f"Location: {usage_point.usage_point_location}")
             for meter in usage_point.end_devices:
-                print(f"{meter.mrid} - customer: {meter.customer_mrid}")
+                log(filename, f"{meter.mrid} - customer: {meter.customer_mrid}")
                 customer = customer_service.get(meter.customer_mrid, Customer)
-                print(f"supply guarantee: {customer.special_need}")
-                print(f"type: {customer.kind.short_name}")
-                print(f"meter description: {meter.description}")
-                print(f"meter name: {meter.name}")
+                log(filename, f"supply guarantee: {customer.special_need}")
+                log(filename, f"type: {customer.kind.short_name}")
+                log(filename, f"meter description: {meter.description}")
+                log(filename, f"meter name: {meter.name}")
  
 data = usagePoint_data()
 asyncio.run(data.get_usagePoint_data())

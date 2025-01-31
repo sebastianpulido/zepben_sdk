@@ -167,6 +167,7 @@ class ZepbenClient:
                                         client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
                                         ca_filename=f"{basepath}/X1.pem",
                                         verify_conf=False)
+                                        
         network_client = NetworkConsumerClient(channel=channel)
         customer_client = CustomerConsumerClient(channel=channel)
         network_service = network_client.service
