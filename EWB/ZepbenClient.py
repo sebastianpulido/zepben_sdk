@@ -3,7 +3,7 @@ import json
 import sys
 from zepben.evolve.streaming.get.network_consumer import SyncNetworkConsumerClient
 from zepben.protobuf.nc.nc_requests_pb2 import IncludedEnergizedContainers
-from zepben.evolve import connect_with_secret, Feeder
+from zepben.evolve import connect_with_secret, Feeder, LvFeeder, NetworkConsumerClient, CustomerConsumerClient
 
 class ZepbenClient:
 
@@ -158,4 +158,21 @@ class ZepbenClient:
 
         return network, network_client
     
-       
+    async def get_network_customer_client_service(self, feeder_mird):
+        basepath = "./EWB/config"
+
+        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
+                                        rpc_port=50051,
+                                        client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
+                                        client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
+                                        ca_filename=f"{basepath}/X1.pem",
+                                        verify_conf=False)
+        network_client = NetworkConsumerClient(channel=channel)
+        customer_client = CustomerConsumerClient(channel=channel)
+        network_service = network_client.service
+        customer_service = customer_client.service
+        (await network_client.get_equipment_container(feeder_mird, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS)).throw_on_error()
+        for lvf in network_service.objects(LvFeeder):
+            (await customer_client.get_customers_for_container(lvf.mrid)).throw_on_error()
+
+        return network_service, customer_service
