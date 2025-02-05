@@ -83,7 +83,7 @@ class powerTransformer_data:
             {list(pt.terminals)},
             {pt.__str__()}/n"""
             
-        print(line2)
+        # print(line2)
         
         
 data = powerTransformer_data()

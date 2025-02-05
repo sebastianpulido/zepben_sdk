@@ -28,13 +28,6 @@ class powerTransformerEnd_data:
         if not os.path.exists(f"{basepath}"):
             os.makedirs(f"{basepath}")
             
-    
-    def get_all_connections(self):
-        for pt in self.network.objects(PowerTransformer):
-            print (list(pt.ends))
-            
-
-
     def get_powerTransformerEnd_data(self):
         filename = self.data_path
         cleanup(filename)
@@ -43,16 +36,11 @@ class powerTransformerEnd_data:
         create_csv(f"./{filename}", *headers.split(','))
 
         for pt in self.network.objects(self.cls):
-            
-            
 
             line = f"'{pt.power_transformer.__str__()}';'{pt.mrid}';'{pt.name}';'{pt.base_voltage}';'{pt.b}';'{pt.b0}';'{pt.connection_kind}';'{pt.description}';'{pt.end_number}';'{pt.grounded}';'{pt.g}';'{pt.nominal_voltage}';'{pt.r_ground}';'{pt.rated_s}';'{pt.rated_u}';'{list(pt.names)}';'{list(pt.s_ratings)}';'{pt.star_impedance}';'{pt.r}';'{pt.r0}';'{pt.phase_angle_clock}'"
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 
-    def get_from_and_to_connections_byPowerTransformerEndID(self, id):
-        
-        line = self.network.get(id, self.cls)
         
 data = powerTransformerEnd_data()
 data.get_powerTransformerEnd_data()

@@ -110,8 +110,8 @@ class feeder_data:
 
             \n"""
             
-            print(line2)
+            # print(line2)
         
 data = feeder_data()
 data.get_feeder_data()
-data.get_list_of_elements()
+# data.get_list_of_elements()

@@ -63,7 +63,7 @@ class lv_feeder_data:
             except AttributeError:
                 _normal_feeders = []
 
-            # line = f"{lvf.mrid}';'{lvf.__str__()[:32000]}';'{lvf.name}';'{lvf.description}';'{lvf.location}';'{lvf.asset_info}';'{str(lvf.num_current_equipment())[:32000]}';'{str(lvf.num_equipment())[:32000]}';'{lvf.num_controls}';'{lvf.num_names()}';'{str(list(lvf.current_equipment))[:32000]}';'{lvf.has_controls}';'{list(lvf.names)}';'{lvf.normal_head_terminal}';'{str(_normal_lv_feeders)[:32000]}';'{str(_normal_feeders)[:32000]}';'{str(_current_feeders)[:32000]}';'{str(_current_lv_feeders)[:32000]}';'{str(list(lvf.equipment))[:32000] if lvf.equipment is not None else []}"
+            # ine = f"{lvf.mrid}';'{lvf.__str__()[:32000]}';'{lvf.name}';'{lvf.description}';'{lvf.location}';'{lvf.asset_info}';'{str(lvf.num_current_equipment())[:32000]}';'{str(lvf.num_equipment())[:32000]}';'{lvf.num_controls}';'{lvf.num_names()}';'{str(list(lvf.current_equipment))[:32000]}';'{lvf.has_controls}';'{list(lvf.names)}';'{lvf.normal_head_terminal}';'{str(_normal_lv_feeders)[:32000]}';'{str(_normal_feeders)[:32000]}';'{str(_current_feeders)[:32000]}';'{str(_current_lv_feeders)[:32000]}';'{str(list(lvf.equipment))[:32000] if lvf.equipment is not None else []}"
             # cleaned_row = [value.strip("'") for value in line.split("';'")]
             # create_csv(f"./{filename}", *cleaned_row)
             

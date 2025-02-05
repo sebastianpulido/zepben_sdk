@@ -22,6 +22,7 @@ class circuit_data:
         basepath = "./EWB/outputs"
         self.feeder_mrid = "PTN-014"
         self.data_path = f"{basepath}/{self.feeder_mrid}_{name}_{now}.csv"
+        self.data_path2 = f"{basepath}/lvdata_{self.feeder_mrid}_{name}_{now}.csv"
         self.network = ZepbenClient().get_zepben_client(self.feeder_mrid)
         self.cls = LvFeeder
 
@@ -50,7 +51,7 @@ class circuit_data:
         print(df)
 
     def get_lvfeeders_data(self):
-        filename = self.data_path
+        filename = self.data_path2
         cleanup(filename)
         headers = "__str__,lvf.description,lvf.asset_info,lvf.normal_head_terminal,lvf.mrid,lvf.name,lvf.normal_energizing_feeders,lvf.normal_feeders,lvf.names,lvf.num_controls"
         create_csv(f"./{filename}", *headers.split(','))
@@ -64,4 +65,4 @@ class circuit_data:
 
 data = circuit_data()
 data.get_circuit_data()
-# data.get_lvfeeders_data()
+data.get_lvfeeders_data()

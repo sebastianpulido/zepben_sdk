@@ -54,5 +54,5 @@ class busbarSection_data:
         
 data = busbarSection_data()
 # data.get_all_connections()
-# data.get_busbarSection_data()
+data.get_busbarSection_data()
 data.get_busbarSection_data_all_feeders("PTN")
