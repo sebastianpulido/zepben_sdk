@@ -15,20 +15,18 @@ from zepben.evolve import PerLengthSequenceImpedance, Fuse, Conductor, PowerTran
 class lv_feeder_data:
 
     def __init__(self):
-        name = self.__class__.__name__
+        self.name = self.__class__.__name__
         now = datetime.datetime.now().strftime("%d%m%Y")
-        #now = datetime.datetime.now().strftime("%d%m%Y-%H%M")
-        basepath = "./EWB/outputs"
+        self.basepath = "./EWB/outputs"
         self.feeder_mrid = "PTN-014"
-        self.data = f"{basepath}/{self.feeder_mrid}_{name}_{now}.txt"
-        self.exception = f"{basepath}/{name}_{now}_exception.txt"
-        self.data_path = f"{basepath}/{name}_{now}.csv"
-        self.connections_path = f"{basepath}/{name}_connections_{now}.csv"
+        self.data = f"{self.basepath}/{self.feeder_mrid}_{self.name}_{now}.txt"
+        self.exception = f"{self.basepath}/{self.name}_{now}_exception.txt"
+        self.data_path = f"{self.basepath}/{self.name}_{now}.csv"
         self.network = ZepbenClient().get_zepben_client(self.feeder_mrid)
         self.cls = LvFeeder 
 
-        if not os.path.exists(f"{basepath}"):
-            os.makedirs(f"{basepath}")
+        if not os.path.exists(f"{self.basepath}"):
+            os.makedirs(f"{self.basepath}")
             
     
     def get_lv_feeder_data(self):
@@ -95,9 +93,7 @@ class lv_feeder_data:
             \n"""
             
             log(self.data, line2.strip())
-            
-            # except:
-            #     log(self.exception,lvf.__str__())
+
 
     def get_lvfeeders_data(self):
         filename = self.data_path
@@ -113,7 +109,18 @@ class lv_feeder_data:
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 
+    def get_lvfeeders_data_allfeeders(self, feeders_group_name):
+        filename = f"{self.basepath}/feeders_{self.name}_{self.now}.csv"
+        cleanup(filename)
+        headers="lvf,asset_info,description,mrid,location,name,names,normal_energizing_feeders,normal_head_terminal"
+        create_csv(f"./{filename}", *headers.split(','))
+        network, client = ZepbenClient().get_zepben_network_client_by_feeder_group_name(feeders_group_name)
+        feeder = network.get(self.feeder_mrid, Feeder)
+        for lvf in feeder.normal_energized_lv_feeders:
+            line=f"{lvf}';'{lvf.asset_info}';'{lvf.description}';'{lvf.mrid}';'{list(lvf.location.points) if lvf.location is not None else "<>"}';'{lvf.name}';'{list(lvf.names)}';'{list(lvf.normal_energizing_feeders)}';'{lvf.normal_head_terminal}"
+            cleaned_row = [value.strip("'") for value in line.split("';'")]
+            create_csv(f"./{filename}", *cleaned_row)
                     
 data = lv_feeder_data()
 data.get_lvfeeders_data()
-# data.get_lv_feeder_data()
+data.get_lvfeeders_data_allfeeders("PTN")

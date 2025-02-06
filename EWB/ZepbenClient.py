@@ -177,3 +177,27 @@ class ZepbenClient:
             (await customer_client.get_customers_for_container(lvf.mrid)).throw_on_error()
 
         return network_service, customer_service
+    
+    async def get_network_service_client_service_Byfeeder_group_name(self, feeder_group_name):
+        basepath = "./EWB/config"
+
+        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
+                                        rpc_port=50051,
+                                        client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
+                                        client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
+                                        ca_filename=f"{basepath}/X1.pem",
+                                        verify_conf=False)
+                                        
+        network_client = NetworkConsumerClient(channel=channel)
+        customer_client = CustomerConsumerClient(channel=channel)
+        network_service = network_client.service
+        customer_service = customer_client.service
+        feeders = self.get_feeders_by_group_name(feeder_group_name)
+        print(f"feeders:{feeders}")
+        for feeder_mrid in feeders:
+            (await network_client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS)).throw_on_error()
+            for lvf in network_service.objects(LvFeeder):
+                (await customer_client.get_customers_for_container(lvf.mrid)).throw_on_error()
+
+        return network_service, customer_service
+    

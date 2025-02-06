@@ -15,16 +15,14 @@ from zepben.evolve import Site, PerLengthSequenceImpedance, Conductor, PowerTran
 class site_data:
 
     def __init__(self):
-        name = self.__class__.__name__
+        self.name = self.__class__.__name__
         now = datetime.datetime.now().strftime("%d%m%Y")
-        #now = datetime.datetime.now().strftime("%d%m%Y-%H%M")
-        basepath = "./EWB/outputs"
-        self.data_path = f"{basepath}/{name}_{now}.csv"
+        self.basepath = "./EWB/outputs"
+        self.data_path = f"{self.basepath}/{self.name}_{now}.csv"
         self.network = ZepbenClient().get_zepben_client("PTN-014")
         self.cls = Site
-
-        if not os.path.exists(f"{basepath}"):
-            os.makedirs(f"{basepath}")
+        if not os.path.exists(f"{self.basepath}"):
+            os.makedirs(f"{self.basepath}")
     
 
     def get_site_data(self):
@@ -40,5 +38,18 @@ class site_data:
             create_csv(f"./{filename}", *cleaned_row)
 
         
+    def get_site_data_allfeeders(self, feeders_group_name):
+        filename = f"{self.basepath}/feeders_{self.name}_{self.now}.csv"
+        cleanup(filename)
+
+        headers = f"mrid,asset_info,num_current_equipment,description,has_controls,num_controls,names,location.points,name"
+        create_csv(f"./{filename}", *headers.split(','))
+        network, client = ZepbenClient().get_zepben_network_client_by_feeder_group_name(feeders_group_name)
+        for s in network.objects(self.cls):            
+            line = f"{s.mrid}';'{s.asset_info}';'{len(list(s.current_equipment))}';'{s.description}';'{s.has_controls}';'{s.num_controls}';'{list(s.names)}';'{list(s.location.points)}';'{s.name}"
+            cleaned_row = [value.strip("'") for value in line.split("';'")]
+            create_csv(f"./{filename}", *cleaned_row)
+        
 data = site_data()
 data.get_site_data()
+data.get_site_data_allfeeders("PTN")

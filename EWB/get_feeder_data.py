@@ -1,6 +1,8 @@
 import sys
 import os
 import datetime
+import pyautogui
+import time
 
 from CSVHeaders import get_header
 from CSVWriter import create_csv
@@ -15,103 +17,137 @@ from zepben.evolve import PerLengthSequenceImpedance, Fuse, Conductor, PowerTran
 class feeder_data:
 
     def __init__(self):
-        name = self.__class__.__name__
+        self.name = self.__class__.__name__
         now = datetime.datetime.now().strftime("%d%m%Y")
-        #now = datetime.datetime.now().strftime("%d%m%Y-%H%M")
-        basepath = "./EWB/outputs"
-        self.data_path = f"{basepath}/{name}_{now}.csv"
-        self.txt_path = f"{basepath}/{name}_data_{now}.txt"
-        self.network = ZepbenClient().get_zepben_client("PTN-014")
+        self.basepath = "./EWB/outputs"
+        feeder_mrid = "PTN-014"
+        self.data_path = f"{self.basepath}/{self.name}_{now}.csv"
+        self.txt_path = f"{self.basepath}/{self.name}_data_{now}.txt"
+        self.network = ZepbenClient().get_zepben_client(feeder_mrid)
         self.cls = Feeder
 
-        if not os.path.exists(f"{basepath}"):
-            os.makedirs(f"{basepath}")
-            
-    
-    def get_all_connections(self):
-        filename = self.connections_path
-        cleanup(filename)
-        for eq in self.network.objects(self.cls):
-            # print(f"\nequipment: {list(eq.equipment)[0]}\n")
-            first_item = list(eq.equipment)[0] if eq.equipment and list(eq.equipment) else None
-            print(first_item)
+        if not os.path.exists(f"{self.basepath}"):
+            os.makedirs(f"{self.basepath}")
 
     def get_list_of_elements(self):
         filename = self.txt_path
         cleanup(filename)
-
         headers = f"mrid,normal_lv_feeders"
         log(f"./{filename}", headers)
-
         for fdr in self.network.objects(self.cls):
             if fdr.mrid == 'PTN-014':
                 line = f"'{fdr.mrid}';'{list(fdr.normal_energized_lv_feeders)}"
                 log(f"./{filename}", line)
-
+    
 
     def get_feeder_data(self):
         filename = self.data_path
+        filename_txt = self.txt_path
         cleanup(filename)
+        cleanup(filename_txt)
         headers = "mrid,__str__,name,description,location,asset_info,num_current_equipment,,num_equipment,num_controls,num_names,current_equipment,normal_energized_lv_feeders,has_controls,names,normal_energizing_substation,normal_head_terminal,_normal_lv_feeders,_normal_feeders,_current_feeders,_current_lv_feeders,equipment"
         create_csv(f"./{filename}", *headers.split(','))
 
-        for pt in self.network.objects(self.cls):
+        for fdr in self.network.objects(self.cls):
 
             
             try:
-                _current_feeders = list(pt.current_feeders()) 
+                _current_feeders = list(fdr.current_feeders()) 
             except AttributeError:
                 _current_feeders = []
+                log(filename_txt, f"_current_feeders = []")
             
             try:
-                _current_lv_feeders = list(pt.current_lv_feeders())  
+                _current_lv_feeders = list(fdr.current_lv_feeders())  
             except AttributeError:
                 _current_lv_feeders = []
+                log(filename_txt, f"_current_lv_feeders = []")
 
             try:
-                _normal_lv_feeders = list(pt.normal_lv_feeders())  
+                _normal_lv_feeders = list(fdr.normal_lv_feeders())  
             except AttributeError:
                 _normal_lv_feeders = []
+                log(filename_txt, f"_normal_lv_feeders = []")
             
             try:
-                _normal_feeders = list(pt.normal_feeders())  
+                _normal_feeders = list(fdr.normal_feeders())  
             except AttributeError:
                 _normal_feeders = []
+                log(filename_txt, f"_normal_feeders = []")
             
-            line = f"'{pt.mrid}';'{str(pt.__str__())[:32000]}';'{pt.name}';'{pt.description}';'{pt.location}';'{pt.asset_info}';'{str(pt.num_current_equipment())[:32000]}';'{str(pt.num_normal_energized_lv_feeders())[:32000]}';'{str(pt.num_equipment())[:32000]}';'{pt.num_controls}';'{str(pt.num_names())[:32000]}';'{str(list(pt.current_equipment))[:32000]}';'{str(list(pt.normal_energized_lv_feeders))[:32000]}';'{pt.has_controls}';'{str(list(pt.names))[:32000]}';'{str(pt.normal_energizing_substation)[:32000]}';'{str(pt.normal_head_terminal)[:32000]}';'{str(_normal_lv_feeders)[:32000]}';'{str(_normal_feeders)[:32000]}';'{str(_current_feeders)[:32000]}';'{str(_current_lv_feeders)[:32000]}';'{str(list(pt.equipment))[:32000] if pt.equipment is not None else []}'"
+            line = f"'{fdr.mrid}';'{str(fdr.__str__())[:32000]}';'{fdr.name}';'{fdr.description}';'{fdr.location}';'{fdr.asset_info}';'{str(fdr.num_current_equipment())[:32000]}';'{str(fdr.num_normal_energized_lv_feeders())[:32000]}';'{str(fdr.num_equipment())[:32000]}';'{fdr.num_controls}';'{str(fdr.num_names())[:32000]}';'{str(list(fdr.current_equipment))[:32000]}';'{str(list(fdr.normal_energized_lv_feeders))[:32000]}';'{fdr.has_controls}';'{str(list(fdr.names))[:32000]}';'{str(fdr.normal_energizing_substation)[:32000]}';'{str(fdr.normal_head_terminal)[:32000]}';'{str(_normal_lv_feeders)[:32000]}';'{str(_normal_feeders)[:32000]}';'{str(_current_feeders)[:32000]}';'{str(_current_lv_feeders)[:32000]}';'{str(list(fdr.equipment))[:32000] if fdr.equipment is not None else []}'"
 
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 
             line2 = f"""
-            mrid: {pt.mrid},
-            __str__: {pt.__str__()},
-            name: {pt.name},
-            description: {pt.description},
-            location: {pt.location},
-            asset_info: {pt.asset_info},
-            num_current_equipment: {pt.num_current_equipment()},
-            num_normal_energized_lv_current_feeders: {pt.num_normal_energized_lv_feeders()},
-            num_equipment: {pt.num_equipment()},
-            num_controls: {pt.num_controls},
-            num_names: {pt.num_names()},
-            asset_info: {pt.asset_info},
-            num_energized_loops: {list(pt.current_equipment)},
-            normal_energized_lv_current_feeders: {list(pt.normal_energized_lv_feeders)},
-            has_controls: {pt.has_controls},
-            names: {list(pt.names)},
-            normal_energizing_substation: {pt.normal_energizing_substation},
-            normal_head_terminal: {pt.normal_head_terminal},
+            mrid: {fdr.mrid},
+            __str__: {fdr.__str__()},
+            name: {fdr.name},
+            description: {fdr.description},
+            location: {fdr.location},
+            asset_info: {fdr.asset_info},
+            num_current_equipment: {fdr.num_current_equipment()},
+            num_normal_energized_lv_current_feeders: {fdr.num_normal_energized_lv_feeders()},
+            num_equipment: {fdr.num_equipment()},
+            num_controls: {fdr.num_controls},
+            num_names: {fdr.num_names()},
+            asset_info: {fdr.asset_info},
+            num_energized_loops: {list(fdr.current_equipment)},
+            normal_energized_lv_current_feeders: {list(fdr.normal_energized_lv_feeders)},
+            has_controls: {fdr.has_controls},
+            names: {list(fdr.names)},
+            normal_energizing_substation: {fdr.normal_energizing_substation},
+            normal_head_terminal: {fdr.normal_head_terminal},
             normal_lv_feeders: {_normal_lv_feeders},
             normal_feeders: {_normal_feeders},
             _current_feeders: {_current_feeders},
             _lv_current_feeders: {_current_lv_feeders},
-            equipment: {list(pt.equipment) if pt.equipment is not None else []}
-
+            equipment: {list(fdr.equipment) if fdr.equipment is not None else []}
             \n"""
+            # log(filename_txt, line2)
+
+    def get_feeder_data_allfeeders(self, feeders_group_name):
+        filename = f"{self.basepath}/feeders_{self.name}_{self.now}.csv"
+        filename_txt = f"{self.basepath}/feeders{self.name}_data_{self.now}.txt"
+        cleanup(filename)
+        cleanup(filename_txt)
+        headers = "mrid,__str__,name,description,location,asset_info,num_current_equipment,,num_equipment,num_controls,num_names,current_equipment,normal_energized_lv_feeders,has_controls,names,normal_energizing_substation,normal_head_terminal,_normal_lv_feeders,_normal_feeders,_current_feeders,_current_lv_feeders,equipment"
+        create_csv(f"./{filename}", *headers.split(','))
+
+        network, client = ZepbenClient().get_zepben_network_client_by_feeder_group_name(feeders_group_name)
+        for fdr in network.objects(self.cls):
+
             
-            # print(line2)
+            try:
+                _current_feeders = list(fdr.current_feeders()) 
+            except AttributeError:
+                _current_feeders = []
+                log(filename_txt, f"_current_feeders = []")
+            
+            try:
+                _current_lv_feeders = list(fdr.current_lv_feeders())  
+            except AttributeError:
+                _current_lv_feeders = []
+                log(filename_txt, f"_current_lv_feeders = []")
+
+            try:
+                _normal_lv_feeders = list(fdr.normal_lv_feeders())  
+            except AttributeError:
+                _normal_lv_feeders = []
+                log(filename_txt, f"_normal_lv_feeders = []")
+            
+            try:
+                _normal_feeders = list(fdr.normal_feeders())  
+            except AttributeError:
+                _normal_feeders = []
+                log(filename_txt, f"_normal_feeders = []")
+            
+            line = f"'{fdr.mrid}';'{str(fdr.__str__())[:32000]}';'{fdr.name}';'{fdr.description}';'{fdr.location}';'{fdr.asset_info}';'{str(fdr.num_current_equipment())[:32000]}';'{str(fdr.num_normal_energized_lv_feeders())[:32000]}';'{str(fdr.num_equipment())[:32000]}';'{fdr.num_controls}';'{str(fdr.num_names())[:32000]}';'{str(list(fdr.current_equipment))[:32000]}';'{str(list(fdr.normal_energized_lv_feeders))[:32000]}';'{fdr.has_controls}';'{str(list(fdr.names))[:32000]}';'{str(fdr.normal_energizing_substation)[:32000]}';'{str(fdr.normal_head_terminal)[:32000]}';'{str(_normal_lv_feeders)[:32000]}';'{str(_normal_feeders)[:32000]}';'{str(_current_feeders)[:32000]}';'{str(_current_lv_feeders)[:32000]}';'{str(list(fdr.equipment))[:32000] if fdr.equipment is not None else []}'"
+            cleaned_row = [value.strip("'") for value in line.split("';'")]
+            create_csv(f"./{filename}", *cleaned_row)
+
         
 data = feeder_data()
 data.get_feeder_data()
-# data.get_list_of_elements()
+data.get_feeder_data_allfeeders("PTN")
