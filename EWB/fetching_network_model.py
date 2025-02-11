@@ -19,20 +19,21 @@ def main():
                                     password="<your-password>",
                                     client_id="e2dd8725-2887-4711-9236-35d60f1b279b")
     '''
-
+    basepath = "./EWB/config"
     channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
                                     rpc_port=50051,
                                     client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
                                     client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                    ca_filename="./X1.pem",
+                                    ca_filename=f"{basepath}/X1.pem",
                                     verify_conf=False)
 
-    feeder_mrid = "PTN14"
+    feeder_mrid = "PTN-014"
     print(f"Fetching {feeder_mrid}")
     # Note you should create a new client for each Feeder you retrieve
     # There is also a NetworkConsumerClient that is asyncio compatible, with the same API.
     client = SyncNetworkConsumerClient(channel=channel)
     network = client.service
+    
 
     # Fetch feeder and all its LvFeeders
     client.get_equipment_container(feeder_mrid, include_energized_containers=INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()

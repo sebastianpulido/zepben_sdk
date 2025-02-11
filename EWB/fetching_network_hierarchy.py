@@ -17,6 +17,9 @@ def main():
                                     verify_conf=False)
     '''
 
+    basepath = "./EWB/config"
+    
+
     channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
                                     rpc_port=50051,
                                     client_id="39356c3a-caf3-46cb-b417-98b6442574d3",

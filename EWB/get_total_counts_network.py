@@ -19,16 +19,16 @@ class total_counts_network:
         basepath = "./EWB/outputs"
         self.feeder_mrid = "PTN-014"
         self.data_path = f"{basepath}/{name}_{now}.txt"
-        self.network = ZepbenClient().get_zepben_client(self.feeder_mrid)
+        self.network, self.client = ZepbenClient().get_zepben_network_all_feeders()
         self.clss = [ConductingEquipment, ConnectivityNode, Fuse, Conductor, PowerTransformer, Circuit, Loop, PowerSystemResource, Terminal, Meter, PowerTransformer, Breaker, EnergyConsumer, LvFeeder, AcLineSegment, UsagePoint, Equipment, Switch, Feeder, BaseService, GeographicalRegion, BusbarSection, Substation]
 
         if not os.path.exists(f"{basepath}"):
             os.makedirs(f"{basepath}")
         
-    def get_all_counts_for_network(self):
-        cleanup(self.data_path)
+    def get_all_counts_for_network(self, feeder_mrid, cleanup):
+        if cleanup: cleanup(self.data_path)
 
-        log(self.data_path, f"FEEDER MRID: {self.feeder_mrid}")
+        log(self.data_path, f"processing feeder MRID: {feeder_mrid}")
         for clss in self.clss:
             
             log(self.data_path, f"-- {clss.__name__}".upper()) 
@@ -45,5 +45,11 @@ class total_counts_network:
                 line = f"Number of {t.__name__} = {count}"
                 log(self.data_path, line)
 
+    def loop_all_feeders(self):
+        cleanup(self.data_path)
+        feeders = ZepbenClient().get_list_of_feeders_allnetwork()
+        for fdr in feeders:
+            self.get_all_counts_for_network(fdr, False)
+
 ini = total_counts_network()
-ini.get_all_counts_for_network()
+ini.loop_all_feeders()
