@@ -48,7 +48,7 @@ class feeder_data:
         headers = "mrid,__str__,name,description,location,asset_info,num_current_equipment,,num_equipment,num_controls,num_names,current_equipment,normal_energized_lv_feeders,has_controls,names,normal_energizing_substation,normal_head_terminal,_normal_lv_feeders,_normal_feeders,_current_feeders,_current_lv_feeders,equipment"
         create_csv(f"./{filename}", *headers.split(','))
 
-        for fdr in self.network.objects(self.cls):
+        for fdr in self.network.objects(self.cls): # self.cls = Feeder
 
             
             try:
@@ -80,31 +80,31 @@ class feeder_data:
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 
-            line2 = f"""
-            mrid: {fdr.mrid},
-            __str__: {fdr.__str__()},
-            name: {fdr.name},
-            description: {fdr.description},
-            location: {fdr.location},
-            asset_info: {fdr.asset_info},
-            num_current_equipment: {fdr.num_current_equipment()},
-            num_normal_energized_lv_current_feeders: {fdr.num_normal_energized_lv_feeders()},
-            num_equipment: {fdr.num_equipment()},
-            num_controls: {fdr.num_controls},
-            num_names: {fdr.num_names()},
-            asset_info: {fdr.asset_info},
-            num_energized_loops: {list(fdr.current_equipment)},
-            normal_energized_lv_current_feeders: {list(fdr.normal_energized_lv_feeders)},
-            has_controls: {fdr.has_controls},
-            names: {list(fdr.names)},
-            normal_energizing_substation: {fdr.normal_energizing_substation},
-            normal_head_terminal: {fdr.normal_head_terminal},
-            normal_lv_feeders: {_normal_lv_feeders},
-            normal_feeders: {_normal_feeders},
-            _current_feeders: {_current_feeders},
-            _lv_current_feeders: {_current_lv_feeders},
-            equipment: {list(fdr.equipment) if fdr.equipment is not None else []}
-            \n"""
+            # line2 = f"""
+            # mrid: {fdr.mrid},
+            # __str__: {fdr.__str__()},
+            # name: {fdr.name},
+            # description: {fdr.description},
+            # location: {fdr.location},
+            # asset_info: {fdr.asset_info},
+            # num_current_equipment: {fdr.num_current_equipment()},
+            # num_normal_energized_lv_current_feeders: {fdr.num_normal_energized_lv_feeders()},
+            # num_equipment: {fdr.num_equipment()},
+            # num_controls: {fdr.num_controls},
+            # num_names: {fdr.num_names()},
+            # asset_info: {fdr.asset_info},
+            # num_energized_loops: {list(fdr.current_equipment)},
+            # normal_energized_lv_current_feeders: {list(fdr.normal_energized_lv_feeders)},
+            # has_controls: {fdr.has_controls},
+            # names: {list(fdr.names)},
+            # normal_energizing_substation: {fdr.normal_energizing_substation},
+            # normal_head_terminal: {fdr.normal_head_terminal},
+            # normal_lv_feeders: {_normal_lv_feeders},
+            # normal_feeders: {_normal_feeders},
+            # _current_feeders: {_current_feeders},
+            # _lv_current_feeders: {_current_lv_feeders},
+            # equipment: {list(fdr.equipment) if fdr.equipment is not None else []}
+            # \n"""
             # log(filename_txt, line2)
 
     def get_feeder_data_allfeeders(self, feeders_group_name):
@@ -116,9 +116,8 @@ class feeder_data:
         create_csv(f"./{filename}", *headers.split(','))
 
         network, client = ZepbenClient().get_zepben_network_client_by_feeder_group_name(feeders_group_name)
-        for fdr in network.objects(self.cls):
+        for fdr in network.objects(self.cls): # self.cls = Feeder
 
-            
             try:
                 _current_feeders = list(fdr.current_feeders()) 
             except AttributeError:
