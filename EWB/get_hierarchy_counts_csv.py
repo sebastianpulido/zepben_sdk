@@ -17,11 +17,7 @@ class hierarchy_counts:
     def __init__(self):
         now = datetime.datetime.now().strftime("%d%m%Y")
         basepath = "./EWB/outputs"
-        # self.filename = f"{basepath}/hierarchy_energyconsuemr_{now}.csv"
-        # self.filename2 = f"{basepath}/hierarchy_powertransformer_{now}.csv"
-        # self.filename3 = f"{basepath}/hierarchy_circuits_{now}.csv"
-        # self.filename4 = f"{basepath}/hierarchy_distribution_site_{now}.csv"
-        self.filename5 = f"{basepath}/hierarchy_supplypoints_{now}.csv"
+        self.filename = f"{basepath}/hierarchy_supplypoints_{now}.csv"
 
     async def connect_jem(self):
         channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
@@ -34,23 +30,9 @@ class hierarchy_counts:
 
         network_hierarchy = (await network_client.get_network_hierarchy()).throw_on_error().value
 
-        # cleanup(self.filename)
-        # cleanup(self.filename2)
-        # cleanup(self.filename3)
-        # cleanup(self.filename4)
-        cleanup(self.filename5)
-
-        # headers = "geographical region, subgeographical region, zone substation, feeder(str), feeder id, energy consumer(str), energy consumer id"
-        # headers2 = "geographical region, subgeographical region, zone substation, feeder(str), feeder id, distribution PowerTransformer(str), distribution powerTransformer id"
-        # headers3 = "geographical region, subgeographical region, zone substation, feeder(str), feeder id, circuit(str), circuit id"
-        # headers4 = "geographical region, subgeographical region, zone substation, feeder(str), feeder id, distribution site"
-        headers5 = "geographical region, subgeographical region, zone substation, feeder(str), feeder id, site, circuit(str), circuit id, supply point(str), supply point id"
-
-        # create_csv(f"./{self.filename}", *headers.split(','))
-        # create_csv(f"./{self.filename2}", *headers2.split(','))
-        # create_csv(f"./{self.filename3}", *headers3.split(','))
-        # create_csv(f"./{self.filename4}", *headers4.split(','))
-        create_csv(f"./{self.filename5}", *headers5.split(','))
+        cleanup(self.filename)
+        headers = "geographical region, subgeographical region, zone substation, feeder(str), feeder id, site, circuit(str), circuit id, supply point(str), supply point id"
+        create_csv(f"./{self.filename}", *headers.split(','))
 
         print("Network hierarchy:")
         for gr in network_hierarchy.geographical_regions.values():
@@ -70,43 +52,20 @@ class hierarchy_counts:
         network_service = network_client.service
         (await network_client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS)).throw_on_error()
 
-        data = []
         line = ""
         feeder = network_service.get(feeder_mrid, Feeder)
         count_sp = len([eq for eq in feeder.equipment if isinstance(eq, EnergyConsumer)])
-        # for eq in feeder.equipment:
-        #     if isinstance(eq, EnergyConsumer):
-        #         line = f"{geographical}';'{subgeographical}';'{zone_sub}';'{feeder.__str__()}';'{feeder.mrid}';'{eq.__str__()}';'{eq.mrid}"
-        #         cleaned_row = [value.strip("'") for value in line.split("';'")]
-        #         create_csv(f"./{self.filename}", *cleaned_row)
-
         count_tx = len([eq for eq in feeder.equipment if isinstance(eq, PowerTransformer) and eq.function == TransformerFunctionKind.distributionTransformer])
-        # for eq in feeder.equipment:
-        #     if isinstance(eq, PowerTransformer) and eq.function == TransformerFunctionKind.distributionTransformer:
-        #         line = f"{geographical}';'{subgeographical}';'{zone_sub}';'{feeder.__str__()}';'{feeder.mrid}';'{eq.__str__()}';'{eq.mrid}"
-        #         cleaned_row = [value.strip("'") for value in line.split("';'")]
-        #         create_csv(f"./{self.filename2}", *cleaned_row)
-
         count_circuits = len([lvf for lvf in feeder.normal_energized_lv_feeders if lvf.normal_head_terminal and isinstance(lvf.normal_head_terminal.conducting_equipment, Switch)])
-        # for lvf in feeder.normal_energized_lv_feeders:
-        #     if lvf.normal_head_terminal and isinstance(lvf.normal_head_terminal.conducting_equipment, Switch):
-        #         line = f"{geographical}';'{subgeographical}';'{zone_sub}';'{feeder.__str__()}';'{feeder.mrid}';'{lvf.__str__()}';'{lvf.mrid}"
-        #         cleaned_row = [value.strip("'") for value in line.split("';'")]
-        #         create_csv(f"./{self.filename3}", *cleaned_row)
 
-        
         log("./EWB/outputs/hierarchy_counts.txt", f"        - Num HV supply points {count_sp}")
         log("./EWB/outputs/hierarchy_counts.txt", f"        - Num distribution transformers {count_tx}")
         log("./EWB/outputs/hierarchy_counts.txt", f"        - Num circuits {count_circuits}")
         log("./EWB/outputs/hierarchy_counts.txt", "")
 
-        data = []
         lvf_done = set()
         for site in network_service.objects(Site):
             log("./EWB/outputs/hierarchy_counts.txt", f"        - Distribution Site {site.name}")
-            # line = f"{geographical}';'{subgeographical}';'{zone_sub}';'{feeder.__str__()}';'{feeder.mrid}';'{site.name}"
-            # cleaned_row = [value.strip("'") for value in line.split("';'")]
-            # create_csv(f"./{self.filename4}", *cleaned_row)
             for equipment in site.equipment:
 
                 # Only process the LvFeeder within this site that starts with circuit switches
@@ -126,7 +85,7 @@ class hierarchy_counts:
                             if isinstance(eq, EnergyConsumer):
                                 line = f"{geographical}';'{subgeographical}';'{zone_sub}';'{feeder.__str__()}';'{feeder.mrid}';'{site.name}';'{lvf.__str__()}';'{lvf.mrid}';'{eq.__str__()}';'{eq.mrid}"
                                 cleaned_row = [value.strip("'") for value in line.split("';'")]
-                                create_csv(f"./{self.filename5}", *cleaned_row)
+                                create_csv(f"./{self.filename}", *cleaned_row)
     
 data = hierarchy_counts()
 asyncio.run(data.connect_jem())
