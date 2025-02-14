@@ -116,7 +116,9 @@ class feeder_data:
         create_csv(f"./{filename}", *headers.split(','))
 
         network, client = ZepbenClient().get_zepben_network_client_by_feeder_group_name(feeders_group_name)
-        for fdr in network.objects(self.cls): # self.cls = Feeder
+        
+        for fdr in network.objects(Feeder): # self.cls = Feeder
+
 
             try:
                 _current_feeders = list(fdr.current_feeders()) 
