@@ -10,7 +10,7 @@ from log import cleanup, log
 from ZepbenClient import ZepbenClient
 from zepben.evolve.streaming.get.network_consumer import SyncNetworkConsumerClient
 from zepben.protobuf.nc.nc_requests_pb2 import IncludedEnergizedContainers
-from zepben.evolve import PerLengthSequenceImpedance, Conductor, PowerTransformer, Circuit, Loop, PowerSystemResource, ConnectivityNode, Terminal, Meter, ConductingEquipment, PowerTransformer, Breaker, EnergyConsumer, LvFeeder, AcLineSegment, connect_with_secret, TransformerFunctionKind, connected_equipment, UsagePoint, Equipment, Switch, Feeder, BaseService, GeographicalRegion, BusbarSection, Substation
+from zepben.evolve import Junction, PerLengthSequenceImpedance, Conductor, PowerTransformer, Circuit, Loop, PowerSystemResource, ConnectivityNode, Terminal, Meter, ConductingEquipment, PowerTransformer, Breaker, EnergyConsumer, LvFeeder, AcLineSegment, connect_with_secret, TransformerFunctionKind, connected_equipment, UsagePoint, Equipment, Switch, Feeder, BaseService, GeographicalRegion, BusbarSection, Substation
 
 class circuit_data:
     def __init__(self):
@@ -78,8 +78,26 @@ class circuit_data:
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 
+
+    def get_circuit_byID(self, circuit_id):
+        # c = self.network.get(circuit_id, LvFeeder)
+        # print(f"circuit data ({circuit_id}): {c.__str__()}")
+
+        network = ZepbenClient().get_zepben_network_all_feeders()
+        for lvf in network.objects(LvFeeder):
+            if lvf.normal_head_terminal:
+                if isinstance(lvf.normal_head_terminal.conducting_equipment, Switch):
+                    current = lvf.mrid.split("-")[0]
+                    print(f"current lvf: {current}")
+                    if current == circuit_id:
+                        print(f"found circuit: {circuit_id}")
+                        break
+                    else:
+                        print(f"looping, skipping {lvf.mrid}")
+
 data = circuit_data()
-data.get_circuit_data()
-data.get_circuit_data_allfeeders("PTN")
-data.get_lvfeeders_data()
-data.get_lvfeeders_data_allfeeders("PTN")
+# data.get_circuit_data()
+# data.get_circuit_data_allfeeders("PTN")
+# data.get_lvfeeders_data()
+# data.get_lvfeeders_data_allfeeders("PTN")
+data.get_circuit_byID(10634017)
