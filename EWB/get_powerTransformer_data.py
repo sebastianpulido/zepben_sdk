@@ -37,18 +37,21 @@ class powerTransformer_data:
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 
-    def get_powerTransformer_data_by_feeder_name(self, feeders_group_name):
+
+    def get_powerTransformer_data_by_feeder_group_name(self, feeders_group_name):
         filename = f"{self.basepath}/feeders_{self.name}_{self.now}.csv"
+        filename = filename.replace("feeders_", f"feeders_{feeders_group_name}_")
         cleanup(filename)
-        headers = "mrid,__str__,connections,base_voltage,asset_info,commissioned_date,description,in_service,location,num_sites,listsites,num_substations,listsubstations,normally_in_service,has_controls},num_controls,base_voltage_value,listcurrent_containers,num_normal_feeders,listcurrent_feeders,listcurrent_lv_feeders,listnormal_feeders,listnormal_lv_feeders,num_names,listnames,name,num_operational_restrictions,listoperational_restrictions},num_usage_points,usage_points,num_containers,num_current_containers,containers,num_terminals,terminals,location_points,transformer_ends"
+        headers = "mrid,__str__,feeder,connections,base_voltage,asset_info,commissioned_date,description,in_service,location,num_sites,listsites,num_substations,listsubstations,normally_in_service,has_controls},num_controls,base_voltage_value,listcurrent_containers,num_normal_feeders,listcurrent_feeders,listcurrent_lv_feeders,listnormal_feeders,listnormal_lv_feeders,num_names,listnames,name,num_operational_restrictions,listoperational_restrictions},num_usage_points,usage_points,num_containers,num_current_containers,containers,num_terminals,terminals,location_points,transformer_ends"
         create_csv(f"./{filename}", *headers.split(','))
         network, client = ZepbenClient().get_zepben_network_client_by_feeder_group_name(feeders_group_name)
         for pt in network.objects(self.cls):
             connections = [(f"from: {cr.from_equip.__str__()}", f"to: {cr.to_equip.__str__()}") for cr in connected_equipment(pt)]
             # end = ", ".join(f'{f}={v}' for e in pt.ends for f, v in values(e).items())
-            line = f"'{pt.mrid}';'{pt.__str__()}';'{connections}';'{pt.base_voltage}';'{pt.asset_info}';'{pt.commissioned_date}';'{pt.description}';'{pt.in_service}';'{pt.location}';'{pt.num_sites()}';'{list(pt.sites)}';'{pt.num_substations()}';'{list(pt.substations)}';'{pt.normally_in_service}';'{pt.has_controls}';'{pt.num_controls}';'{pt.base_voltage_value}';'{list(pt.current_containers)}';'{pt.num_normal_feeders()}';'{list(pt.current_feeders)}';'{list(pt.current_lv_feeders)}';'{list(pt.normal_feeders)}';'{list(pt.normal_lv_feeders)}';'{pt.num_names()}';'{list(pt.names)}';'{pt.name}';'{pt.num_operational_restrictions()}';'{list(pt.operational_restrictions)}';'{pt.num_usage_points()}';'{list(pt.usage_points)}';'{pt.num_containers()}';'{pt.num_current_containers()}';'{list(pt.containers)}';'{pt.num_terminals()}';'{list(pt.terminals)}';'{list(pt.location.points)}';'{list(pt.ends)}"
+            line = f"'{pt.mrid}';'{pt.__str__()}';'{list(pt.current_containers)[0]}';'{connections}';'{pt.base_voltage}';'{pt.asset_info}';'{pt.commissioned_date}';'{pt.description}';'{pt.in_service}';'{pt.location}';'{pt.num_sites()}';'{list(pt.sites)}';'{pt.num_substations()}';'{list(pt.substations)}';'{pt.normally_in_service}';'{pt.has_controls}';'{pt.num_controls}';'{pt.base_voltage_value}';'{list(pt.current_containers)}';'{pt.num_normal_feeders()}';'{list(pt.current_feeders)}';'{list(pt.current_lv_feeders)}';'{list(pt.normal_feeders)}';'{list(pt.normal_lv_feeders)}';'{pt.num_names()}';'{list(pt.names)}';'{pt.name}';'{pt.num_operational_restrictions()}';'{list(pt.operational_restrictions)}';'{pt.num_usage_points()}';'{list(pt.usage_points)}';'{pt.num_containers()}';'{pt.num_current_containers()}';'{list(pt.containers)}';'{pt.num_terminals()}';'{list(pt.terminals)}';'{list(pt.location.points)}';'{list(pt.ends)}"
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
+        
 
     def get_powerTransformer_data_allfeeders(self):
         filename = f"{self.basepath}/feeders_{self.name}_{self.now}.csv"
@@ -63,8 +66,8 @@ class powerTransformer_data:
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 
+
     def get_data_byPowerTransformeID(self, id):
-        
         pt = self.network.get(id, self.cls)
         line2 = f"""{pt.mrid},
             {pt.base_voltage},
@@ -107,4 +110,5 @@ class powerTransformer_data:
 data = powerTransformer_data()
 # data.get_powerTransformer_data()
 # data.get_powerTransformer_data_by_feeder_name("PTN")
-data.get_powerTransformer_data_allfeeders()
+# data.get_powerTransformer_data_allfeeders()
+data.get_powerTransformer_data_by_feeder_group_name("PTN")

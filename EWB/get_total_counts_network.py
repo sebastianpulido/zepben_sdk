@@ -9,7 +9,7 @@ from log import cleanup, log
 from ZepbenClient import ZepbenClient
 from zepben.evolve.streaming.get.network_consumer import SyncNetworkConsumerClient
 from zepben.protobuf.nc.nc_requests_pb2 import IncludedEnergizedContainers
-from zepben.evolve import IdentifiedObject, PerLengthSequenceImpedance, Fuse, Conductor, PowerTransformer, Circuit, Loop, PowerSystemResource, ConnectivityNode, Terminal, Meter, ConductingEquipment, PowerTransformer, Breaker, EnergyConsumer, LvFeeder, AcLineSegment, connect_with_secret, TransformerFunctionKind, connected_equipment, UsagePoint, Equipment, Switch, Feeder, BaseService, GeographicalRegion, BusbarSection, Substation, Junction, GroundDisconnector, Site, LoadBreakSwitch, Recloser, PowerElectronicsConnection, Disconnector, Jumper 
+from zepben.evolve import IdentifiedObject, PerLengthSequenceImpedance, Fuse, Conductor, PowerTransformer, Circuit, Loop, PowerSystemResource, ConnectivityNode, Terminal, Meter, ConductingEquipment, PowerTransformer, Breaker, EnergyConsumer, LvFeeder, AcLineSegment, connect_with_secret, TransformerFunctionKind, connected_equipment, UsagePoint, Equipment, Switch, Feeder, BaseService, GeographicalRegion, BusbarSection, Substation, Junction, GroundDisconnector, Site, LoadBreakSwitch, Recloser, PowerElectronicsConnection, Disconnector, Jumper, Cut
 
 class total_counts_network:
 
@@ -48,10 +48,10 @@ class total_counts_network:
                     create_csv(f"./{filename}", *cleaned_row)
 
     def loop_all_assets(self):
-        ids = "PowerTransformer, BusbarSection, Breaker, Fuse, Junction, LoadBreakSwitch, PowerTransformer, Recloser, AcLineSegment, PowerElectronicsConnection, EnergyConsumer, GroundDisconnector, Disconnector, Jumper, Feeder, Site, Substation, LvFeeder"
+        ids = "BusbarSection, Breaker, Fuse, Junction, LoadBreakSwitch, PowerTransformer, Recloser, AcLineSegment, PowerElectronicsConnection, EnergyConsumer, GroundDisconnector, Disconnector, Jumper, Feeder, Site, Substation, LvFeeder"
         counter = 0
         list_clss = [BusbarSection, Breaker, Fuse, Junction, LoadBreakSwitch, PowerTransformer, Recloser, AcLineSegment, PowerElectronicsConnection, EnergyConsumer, GroundDisconnector, Disconnector, Jumper, Feeder, Site, Substation, LvFeeder]
-        list_clss = [PowerTransformer]
+        list_clss = [GroundDisconnector]
         for clss in list_clss:
             self.get_all_assets_mrids(clss, ids.split(",")[counter])
             counter += 1

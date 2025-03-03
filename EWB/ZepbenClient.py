@@ -75,8 +75,6 @@ class ZepbenClient:
 
         client = SyncNetworkConsumerClient(channel=channel)
         feeders = self.get_feeders_by_group_name(feeder_group_name)
-        print(f"feeders:{feeders}")
-
         for feeder_mrid in feeders:
             client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
 
@@ -93,10 +91,7 @@ class ZepbenClient:
                                         verify_conf=False)
 
         client = SyncNetworkConsumerClient(channel=channel)
-
-        
         feeders = self.get_list_of_feeders_allnetwork()
-
         for feeder_mrid in feeders:
             client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
 
@@ -120,7 +115,6 @@ class ZepbenClient:
                                         verify_conf=False)
         hierarchy_client = SyncNetworkConsumerClient(channel=channel)
         network_hierarchy = hierarchy_client.get_network_hierarchy().throw_on_error().value
-
         list_feeders = network_hierarchy.feeders.values()
         feeders = sorted(fdr.name.strip() for fdr in list_feeders)
         filename = "./feeder_list.txt"
@@ -137,15 +131,11 @@ class ZepbenClient:
                                         verify_conf=False)
         hierarchy_client = SyncNetworkConsumerClient(channel=channel)
         network_hierarchy = hierarchy_client.get_network_hierarchy().throw_on_error().value
-
         list_feeders = network_hierarchy.feeders.values()
         if not list_feeders:
             return "{}"
     
         feeders = sorted(fdr.name.strip() for fdr in list_feeders)
-
-        # filename = "./feeder_list.txt"
-        # cleanup(filename)
         formatted = ""
         _previous_site = ""
 
@@ -186,7 +176,6 @@ class ZepbenClient:
         client = SyncNetworkConsumerClient(channel=channel)
         network = client.service
         (await client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS)).throw_on_error()
-
         return client, network
 
     def get_zepben_client(self, feeder_mrid):
@@ -195,7 +184,6 @@ class ZepbenClient:
             #     credentials = json.load(f)
 
         basepath = "./EWB/config"
-    
         channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
                                         rpc_port=50051,
                                         client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
@@ -206,13 +194,10 @@ class ZepbenClient:
         client = SyncNetworkConsumerClient(channel=channel)
         network = client.service
         client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
-
         return network
 
     def get_client(self, feeder_mrid):
-
         basepath = "./EWB/config"
-       
         channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
                                         rpc_port=50051,
                                         client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
@@ -222,7 +207,6 @@ class ZepbenClient:
 
         client = SyncNetworkConsumerClient(channel=channel)
         client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
-        
         return client
 
     def get_network_and_networkClient(self, feeder_mrid):
@@ -239,7 +223,6 @@ class ZepbenClient:
         network_client = SyncNetworkConsumerClient(channel=channel)    
         network = network_client.service    
         network_client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()    
-
         return network, network_client
     
     async def get_network_customer_client_service(self, feeder_mird):

@@ -11,7 +11,7 @@ from zepben.protobuf.nc.nc_requests_pb2 import IncludedEnergizedContainers
 from zepben.evolve import IdentifiedObject, PerLengthSequenceImpedance, Fuse, Conductor, PowerTransformer, Circuit, Loop, PowerSystemResource, ConnectivityNode, \
     Terminal, Meter, ConductingEquipment, PowerTransformer, Breaker, EnergyConsumer, LvFeeder, AcLineSegment, connect_with_secret, TransformerFunctionKind, \
     connected_equipment, UsagePoint, Equipment, Switch, Feeder, BaseService, GeographicalRegion, BusbarSection, Substation, Junction, GroundDisconnector, Site, \
-    LoadBreakSwitch, Recloser, PowerElectronicsConnection, Disconnector, Jumper, connect_with_token, NetworkService
+    LoadBreakSwitch, Recloser, PowerElectronicsConnection, Disconnector, Jumper, connect_with_token, NetworkService, Cut
 
 # with open("config.json") as f:
 #     c = json.loads(f.read())
@@ -53,8 +53,8 @@ class total_counts_network:
                     create_csv(f"./{filename}", *cleaned_row)
 
     def loop_all_assets(self):
-        ids = "EnergyConsumer, BusbarSection, Breaker, Fuse, Junction, LoadBreakSwitch, PowerTransformer, Recloser, AcLineSegment, PowerElectronicsConnection, EnergyConsumer, GroundDisconnector, Disconnector, Jumper, Feeder, Site, Substation, LvFeeder"
-        list_clss = [EnergyConsumer]#, BusbarSection, Breaker, Fuse, Junction, LoadBreakSwitch, PowerTransformer, Recloser, AcLineSegment, PowerElectronicsConnection, EnergyConsumer, GroundDisconnector, Disconnector, Jumper, Feeder, Site, Substation, LvFeeder]
+        ids = "GroundDisconnector, Jumper, Cut, EnergyConsumer, BusbarSection, Breaker, Fuse, Junction, LoadBreakSwitch, PowerTransformer, Recloser, AcLineSegment, PowerElectronicsConnection, EnergyConsumer, GroundDisconnector, Disconnector, Jumper, Feeder, Site, Substation, LvFeeder"
+        list_clss = [GroundDisconnector]#, Jumper, Cut]#, BusbarSection, Breaker, Fuse, Junction, LoadBreakSwitch, PowerTransformer, Recloser, AcLineSegment, PowerElectronicsConnection, EnergyConsumer, GroundDisconnector, Disconnector, Jumper, Feeder, Site, Substation, LvFeeder]
 
         basepath = "./EWB/config"
         channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
