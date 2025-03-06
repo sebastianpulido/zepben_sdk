@@ -118,7 +118,11 @@ class ZepbenClient:
         list_feeders = network_hierarchy.feeders.values()
         feeders = sorted(fdr.name.strip() for fdr in list_feeders)
         filename = "./feeder_list.txt"
+        cleanup(filename)
         log(filename, feeders)
+
+        list_feeders = ['PTN-014']
+
         return feeders
     
     def get_list_of_feeders_dictionary(self):
