@@ -2,6 +2,7 @@ import sys
 import os
 import datetime
 import asyncio
+import nest_asyncio 
 
 from CSVHeaders import get_header
 from CSVWriter import create_csv
@@ -11,6 +12,8 @@ from ZepbenClient import ZepbenClient
 from zepben.evolve.streaming.get.network_consumer import SyncNetworkConsumerClient
 from zepben.protobuf.nc.nc_requests_pb2 import IncludedEnergizedContainers
 from zepben.evolve import Customer, PowerElectronicsConnection, PerLengthSequenceImpedance, Conductor, PowerTransformer, Circuit, Loop, PowerSystemResource, ConnectivityNode, Terminal, Meter, ConductingEquipment, PowerTransformer, Breaker, EnergyConsumer, LvFeeder, AcLineSegment, connect_with_secret, TransformerFunctionKind, connected_equipment, UsagePoint, PowerElectronicsUnit, PhotoVoltaicUnit, Equipment, Switch, Feeder, BaseService, GeographicalRegion, BusbarSection, Substation, Junction, Site
+
+nest_asyncio.apply() 
 
 class usagePoint_data:
     def __init__(self):
@@ -24,7 +27,7 @@ class usagePoint_data:
         if not os.path.exists(f"{self.basepath}"):
             os.makedirs(f"{self.basepath}")
 
-    async def get_usagePoint_data(self):
+    async def get_usagePoint_data_2(self):
         filename = self.data_path
         csv_filename = self.csv_data_path
         cleanup(filename)
@@ -78,12 +81,12 @@ class usagePoint_data:
                 cleaned_row = [value.strip("'") for value in line.split("';'")]
                 create_csv(f"./{csv_filename}", *cleaned_row)
 
-    async def get_usagePoint_data_allfeeders(self, feeders_group_name):
+    async def get_usagePoint_data(self, feeders_group_name):
         csv_filename = f"{self.basepath}/feeders_{self.name}_{self.now}.csv"
         filename = f"{self.basepath}/feeders_{self.name}_{self.now}.txt"
         cleanup(filename)
         cleanup(csv_filename)
-        network_service, customer_service = await ZepbenClient().get_network_service_client_service_Byfeeder_group_name(self.feeders_group_name)
+        network_service, customer_service = await ZepbenClient().get_network_service_client_service_Byfeeder_group_name(feeders_group_name)
 
         headers = f"usage_point.mrid,usage_point.__str__(),usage_point_location,usage_point_location.main_address,usage_point_location_points,usage_point_location.name,usage_point_location.description,usage_point.NMI,meter.mrid,meter.__str__(),meter.description,meter.name,meter.custormer_mird,customer.mrid,customer.__str__(),customer.special_need,customer.kind,customer.kind.short_name,usage_point.equipment.rated_s,usage_point.equipment.rated_u,supply_point.mrid,list(equipment.units)"
         create_csv(f"./{csv_filename}", *headers.split(','))
@@ -111,7 +114,6 @@ class usagePoint_data:
                 log(filename, f"meter description: {meter.description}")
                 log(filename, f"meter name: {meter.name}")
 
-
                 line += f"';'{meter.mrid}';'{meter.__str__()}';'{meter.description}';'{meter.name}';'{meter.customer_mrid}';'{customer.mrid}';'{customer.__str__()}';'{customer.special_need}';'{customer.kind}';'{customer.kind.short_name}"
                 
             for equipment in usage_point.equipment:
@@ -131,44 +133,52 @@ class usagePoint_data:
                 cleaned_row = [value.strip("'") for value in line.split("';'")]
                 create_csv(f"./{csv_filename}", *cleaned_row)
 
- 
-data = usagePoint_data()
-asyncio.run(data.get_usagePoint_data())
-asyncio.run(data.get_usagePoint_data_allfeeders("AW"))
-asyncio.run(data.get_usagePoint_data_allfeeders("BD"))
-asyncio.run(data.get_usagePoint_data_allfeeders("BKN"))
-asyncio.run(data.get_usagePoint_data_allfeeders("BLT"))
-asyncio.run(data.get_usagePoint_data_allfeeders("BMS"))
-asyncio.run(data.get_usagePoint_data_allfeeders("BY"))
-asyncio.run(data.get_usagePoint_data_allfeeders("CN"))
-asyncio.run(data.get_usagePoint_data_allfeeders("COO"))
-asyncio.run(data.get_usagePoint_data_allfeeders("CS"))
-asyncio.run(data.get_usagePoint_data_allfeeders("EP"))
-asyncio.run(data.get_usagePoint_data_allfeeders("EPN"))
-asyncio.run(data.get_usagePoint_data_allfeeders("ES"))
-asyncio.run(data.get_usagePoint_data_allfeeders("FE"))
-asyncio.run(data.get_usagePoint_data_allfeeders("FF"))
-asyncio.run(data.get_usagePoint_data_allfeeders("FT"))
-asyncio.run(data.get_usagePoint_data_allfeeders("FW"))
-asyncio.run(data.get_usagePoint_data_allfeeders("HB"))
-asyncio.run(data.get_usagePoint_data_allfeeders("KLO"))
-asyncio.run(data.get_usagePoint_data_allfeeders("MAT"))
-asyncio.run(data.get_usagePoint_data_allfeeders("MB"))
-asyncio.run(data.get_usagePoint_data_allfeeders("MISC"))
-asyncio.run(data.get_usagePoint_data_allfeeders("NEL"))
-asyncio.run(data.get_usagePoint_data_allfeeders("NH"))
-asyncio.run(data.get_usagePoint_data_allfeeders("NS"))
-asyncio.run(data.get_usagePoint_data_allfeeders("NT"))
-asyncio.run(data.get_usagePoint_data_allfeeders("PTN"))
-asyncio.run(data.get_usagePoint_data_allfeeders("PV"))
-asyncio.run(data.get_usagePoint_data_allfeeders("SA"))
-asyncio.run(data.get_usagePoint_data_allfeeders("SBY"))
-asyncio.run(data.get_usagePoint_data_allfeeders("SHM"))
-asyncio.run(data.get_usagePoint_data_allfeeders("ST"))
-asyncio.run(data.get_usagePoint_data_allfeeders("TH"))
-asyncio.run(data.get_usagePoint_data_allfeeders("TMA"))
-asyncio.run(data.get_usagePoint_data_allfeeders("TT"))
-asyncio.run(data.get_usagePoint_data_allfeeders("VCO"))
-asyncio.run(data.get_usagePoint_data_allfeeders("WGT"))
-asyncio.run(data.get_usagePoint_data_allfeeders("WT"))
-asyncio.run(data.get_usagePoint_data_allfeeders("YVE"))
+
+    async def main(self):
+        await self.get_usagePoint_data("AW")
+
+
+if __name__ == "__main__":
+    obj = usagePoint_data()
+    loop = asyncio.get_event_loop()
+    loop.create_task(obj.main())
+    loop.run_forever() 
+    # data = usagePoint_data()
+    # asyncio.run(data.get_usagePoint_data("AW"))
+    # asyncio.run(data.get_usagePoint_data("BD"))
+    # asyncio.run(data.get_usagePoint_data("BKN"))
+    # asyncio.run(data.get_usagePoint_data("BLT"))
+    # asyncio.run(data.get_usagePoint_data("BMS"))
+    # asyncio.run(data.get_usagePoint_data("BY"))
+    # asyncio.run(data.get_usagePoint_data("CN"))
+    # asyncio.run(data.get_usagePoint_data("COO"))
+    # asyncio.run(data.get_usagePoint_data("CS"))
+    # asyncio.run(data.get_usagePoint_data("EP"))
+    # asyncio.run(data.get_usagePoint_data("EPN"))
+    # asyncio.run(data.get_usagePoint_data("ES"))
+    # asyncio.run(data.get_usagePoint_data("FE"))
+    # asyncio.run(data.get_usagePoint_data("FF"))
+    # asyncio.run(data.get_usagePoint_data("FT"))
+    # asyncio.run(data.get_usagePoint_data("FW"))
+    # asyncio.run(data.get_usagePoint_data("HB"))
+    # asyncio.run(data.get_usagePoint_data("KLO"))
+    # asyncio.run(data.get_usagePoint_data("MAT"))
+    # asyncio.run(data.get_usagePoint_data("MB"))
+    # asyncio.run(data.get_usagePoint_data("MISC"))
+    # asyncio.run(data.get_usagePoint_data("NEL"))
+    # asyncio.run(data.get_usagePoint_data("NH"))
+    # asyncio.run(data.get_usagePoint_data("NS"))
+    # asyncio.run(data.get_usagePoint_data("NT"))
+    # asyncio.run(data.get_usagePoint_data("PTN"))
+    # asyncio.run(data.get_usagePoint_data("PV"))
+    # asyncio.run(data.get_usagePoint_data("SA"))
+    # asyncio.run(data.get_usagePoint_data("SBY"))
+    # asyncio.run(data.get_usagePoint_data("SHM"))
+    # asyncio.run(data.get_usagePoint_data("ST"))
+    # asyncio.run(data.get_usagePoint_data("TH"))
+    # asyncio.run(data.get_usagePoint_data("TMA"))
+    # asyncio.run(data.get_usagePoint_data("TT"))
+    # asyncio.run(data.get_usagePoint_data("VCO"))
+    # asyncio.run(data.get_usagePoint_data("WGT"))
+    # asyncio.run(data.get_usagePoint_data("WT"))
+    # asyncio.run(data.get_usagePoint_data("YVE"))
