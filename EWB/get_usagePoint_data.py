@@ -93,7 +93,6 @@ class usagePoint_data:
             for eq in usage_point.equipment:
                 if isinstance(eq, EnergyConsumer):
                     supply_point = eq
-                
                     
             line = f"{usage_point.mrid}';'{usage_point.__str__()}';'{usage_point.usage_point_location}';'{usage_point.usage_point_location.main_address}';'{list(usage_point.usage_point_location.points)}';'{usage_point.usage_point_location.name}';'{usage_point.usage_point_location.description}"
 
@@ -135,4 +134,41 @@ class usagePoint_data:
  
 data = usagePoint_data()
 asyncio.run(data.get_usagePoint_data())
+asyncio.run(data.get_usagePoint_data_allfeeders("AW"))
+asyncio.run(data.get_usagePoint_data_allfeeders("BD"))
+asyncio.run(data.get_usagePoint_data_allfeeders("BKN"))
+asyncio.run(data.get_usagePoint_data_allfeeders("BLT"))
+asyncio.run(data.get_usagePoint_data_allfeeders("BMS"))
+asyncio.run(data.get_usagePoint_data_allfeeders("BY"))
+asyncio.run(data.get_usagePoint_data_allfeeders("CN"))
+asyncio.run(data.get_usagePoint_data_allfeeders("COO"))
+asyncio.run(data.get_usagePoint_data_allfeeders("CS"))
+asyncio.run(data.get_usagePoint_data_allfeeders("EP"))
+asyncio.run(data.get_usagePoint_data_allfeeders("EPN"))
+asyncio.run(data.get_usagePoint_data_allfeeders("ES"))
+asyncio.run(data.get_usagePoint_data_allfeeders("FE"))
+asyncio.run(data.get_usagePoint_data_allfeeders("FF"))
+asyncio.run(data.get_usagePoint_data_allfeeders("FT"))
+asyncio.run(data.get_usagePoint_data_allfeeders("FW"))
+asyncio.run(data.get_usagePoint_data_allfeeders("HB"))
+asyncio.run(data.get_usagePoint_data_allfeeders("KLO"))
+asyncio.run(data.get_usagePoint_data_allfeeders("MAT"))
+asyncio.run(data.get_usagePoint_data_allfeeders("MB"))
+asyncio.run(data.get_usagePoint_data_allfeeders("MISC"))
+asyncio.run(data.get_usagePoint_data_allfeeders("NEL"))
+asyncio.run(data.get_usagePoint_data_allfeeders("NH"))
+asyncio.run(data.get_usagePoint_data_allfeeders("NS"))
+asyncio.run(data.get_usagePoint_data_allfeeders("NT"))
 asyncio.run(data.get_usagePoint_data_allfeeders("PTN"))
+asyncio.run(data.get_usagePoint_data_allfeeders("PV"))
+asyncio.run(data.get_usagePoint_data_allfeeders("SA"))
+asyncio.run(data.get_usagePoint_data_allfeeders("SBY"))
+asyncio.run(data.get_usagePoint_data_allfeeders("SHM"))
+asyncio.run(data.get_usagePoint_data_allfeeders("ST"))
+asyncio.run(data.get_usagePoint_data_allfeeders("TH"))
+asyncio.run(data.get_usagePoint_data_allfeeders("TMA"))
+asyncio.run(data.get_usagePoint_data_allfeeders("TT"))
+asyncio.run(data.get_usagePoint_data_allfeeders("VCO"))
+asyncio.run(data.get_usagePoint_data_allfeeders("WGT"))
+asyncio.run(data.get_usagePoint_data_allfeeders("WT"))
+asyncio.run(data.get_usagePoint_data_allfeeders("YVE"))

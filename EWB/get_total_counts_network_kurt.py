@@ -16,7 +16,6 @@ from zepben.evolve import IdentifiedObject, PerLengthSequenceImpedance, Fuse, Co
 # with open("config.json") as f:
 #     c = json.loads(f.read())
 
-
 class total_counts_network:
 
     def __init__(self):
