@@ -27,7 +27,7 @@ class usagePoint_data:
         if not os.path.exists(f"{self.basepath}"):
             os.makedirs(f"{self.basepath}")
 
-    async def get_usagePoint_data_2(self):
+    async def get_usagePoint_data(self):
         filename = self.data_path
         csv_filename = self.csv_data_path
         cleanup(filename)
@@ -42,7 +42,6 @@ class usagePoint_data:
             for eq in usage_point.equipment:
                 if isinstance(eq, EnergyConsumer):
                     supply_point = eq
-                
                     
             line = f"{usage_point.mrid}';'{usage_point.__str__()}';'{usage_point.usage_point_location}';'{usage_point.usage_point_location.main_address}';'{list(usage_point.usage_point_location.points)}';'{usage_point.usage_point_location.name}';'{usage_point.usage_point_location.description}"
 
@@ -81,16 +80,8 @@ class usagePoint_data:
                 cleaned_row = [value.strip("'") for value in line.split("';'")]
                 create_csv(f"./{csv_filename}", *cleaned_row)
 
-    async def get_usagePoint_data(self, feeders_group_name):
-        csv_filename = f"{self.basepath}/feeders_{self.name}_{self.now}.csv"
-        filename = f"{self.basepath}/feeders_{self.name}_{self.now}.txt"
-        cleanup(filename)
-        cleanup(csv_filename)
+    async def get_usagePoint_data_by_feeder_groupname(self, feeders_group_name, csv_filename, filename):
         network_service, customer_service = await ZepbenClient().get_network_service_client_service_Byfeeder_group_name(feeders_group_name)
-
-        headers = f"usage_point.mrid,usage_point.__str__(),usage_point_location,usage_point_location.main_address,usage_point_location_points,usage_point_location.name,usage_point_location.description,usage_point.NMI,meter.mrid,meter.__str__(),meter.description,meter.name,meter.custormer_mird,customer.mrid,customer.__str__(),customer.special_need,customer.kind,customer.kind.short_name,usage_point.equipment.rated_s,usage_point.equipment.rated_u,supply_point.mrid,list(equipment.units)"
-        create_csv(f"./{csv_filename}", *headers.split(','))
-        
         for usage_point in network_service.objects(UsagePoint):
             supply_point = None
             for eq in usage_point.equipment:
@@ -108,13 +99,18 @@ class usagePoint_data:
             log(filename, f"Location: {usage_point.usage_point_location}")
             for meter in usage_point.end_devices:
                 log(filename, f"{meter.mrid} - customer: {meter.customer_mrid}")
-                customer = customer_service.get(meter.customer_mrid, Customer)
-                log(filename, f"supply guarantee: {customer.special_need}")
-                log(filename, f"type: {customer.kind.short_name}")
-                log(filename, f"meter description: {meter.description}")
-                log(filename, f"meter name: {meter.name}")
+                # customer = customer_service.get(meter.customer_mrid, Customer)
+                try:
+                    customer = customer_service.get(meter.customer_mrid, Customer)
+                    log(filename, f"supply guarantee: {customer.special_need}")
+                    log(filename, f"type: {customer.kind.short_name}")
+                    log(filename, f"meter description: {meter.description}")
+                    log(filename, f"meter name: {meter.name}")
 
-                line += f"';'{meter.mrid}';'{meter.__str__()}';'{meter.description}';'{meter.name}';'{meter.customer_mrid}';'{customer.mrid}';'{customer.__str__()}';'{customer.special_need}';'{customer.kind}';'{customer.kind.short_name}"
+                    line += f"';'{meter.mrid}';'{meter.__str__()}';'{meter.description}';'{meter.name}';'{meter.customer_mrid}';'{customer.mrid}';'{customer.__str__()}';'{customer.special_need}';'{customer.kind}';'{customer.kind.short_name}"
+                except Exception:
+                    customer = f"<Customer not found ({meter.customer_mrid})>"
+                    line += f"';'{meter.mrid}';'{meter.__str__()}';'{meter.description}';'{meter.name}';'{meter.customer_mrid}';'{customer}';'{customer}';'{customer}';'{customer}';'{customer}"
                 
             for equipment in usage_point.equipment:
                 if supply_point is None:
@@ -135,7 +131,20 @@ class usagePoint_data:
 
 
     async def main(self):
-        await self.get_usagePoint_data("AW")
+        csv_filename = f"{self.basepath}/feeders_{self.name}_{self.now}.csv"
+        filename = f"{self.basepath}/feeders_{self.name}_{self.now}.txt"
+        cleanup(filename)
+        cleanup(csv_filename)
+        headers = f"usage_point.mrid,usage_point.__str__(),usage_point_location,usage_point_location.main_address,usage_point_location_points,usage_point_location.name,usage_point_location.description,usage_point.NMI,meter.mrid,meter.__str__(),meter.description,meter.name,meter.custormer_mird,customer.mrid,customer.__str__(),customer.special_need,customer.kind,customer.kind.short_name,usage_point.equipment.rated_s,usage_point.equipment.rated_u,supply_point.mrid,list(equipment.units)"
+        create_csv(f"./{csv_filename}", *headers.split(','))
+
+        feeders_group_names = [
+            "AW", "BD", "BKN", "BLT", "BMS", "BY", "CN", "COO", "CS", "EP", "EPN", "ES", "FE", "FF", "FT", "FW",
+            "HB", "KLO", "MAT", "MB", "MISC", "NEL", "NH", "NS", "NT", "PTN", "PV", "SA", "SBY", "SHM", "ST", "TH",
+            "TMA", "TT", "VCO", "WGT", "WT", "YVE"
+        ]
+        
+        await asyncio.gather(*(self.get_usagePoint_data_by_feeder_groupname(feeder, csv_filename, filename) for feeder in feeders_group_names))
 
 
 if __name__ == "__main__":
@@ -143,42 +152,3 @@ if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.create_task(obj.main())
     loop.run_forever() 
-    # data = usagePoint_data()
-    # asyncio.run(data.get_usagePoint_data("AW"))
-    # asyncio.run(data.get_usagePoint_data("BD"))
-    # asyncio.run(data.get_usagePoint_data("BKN"))
-    # asyncio.run(data.get_usagePoint_data("BLT"))
-    # asyncio.run(data.get_usagePoint_data("BMS"))
-    # asyncio.run(data.get_usagePoint_data("BY"))
-    # asyncio.run(data.get_usagePoint_data("CN"))
-    # asyncio.run(data.get_usagePoint_data("COO"))
-    # asyncio.run(data.get_usagePoint_data("CS"))
-    # asyncio.run(data.get_usagePoint_data("EP"))
-    # asyncio.run(data.get_usagePoint_data("EPN"))
-    # asyncio.run(data.get_usagePoint_data("ES"))
-    # asyncio.run(data.get_usagePoint_data("FE"))
-    # asyncio.run(data.get_usagePoint_data("FF"))
-    # asyncio.run(data.get_usagePoint_data("FT"))
-    # asyncio.run(data.get_usagePoint_data("FW"))
-    # asyncio.run(data.get_usagePoint_data("HB"))
-    # asyncio.run(data.get_usagePoint_data("KLO"))
-    # asyncio.run(data.get_usagePoint_data("MAT"))
-    # asyncio.run(data.get_usagePoint_data("MB"))
-    # asyncio.run(data.get_usagePoint_data("MISC"))
-    # asyncio.run(data.get_usagePoint_data("NEL"))
-    # asyncio.run(data.get_usagePoint_data("NH"))
-    # asyncio.run(data.get_usagePoint_data("NS"))
-    # asyncio.run(data.get_usagePoint_data("NT"))
-    # asyncio.run(data.get_usagePoint_data("PTN"))
-    # asyncio.run(data.get_usagePoint_data("PV"))
-    # asyncio.run(data.get_usagePoint_data("SA"))
-    # asyncio.run(data.get_usagePoint_data("SBY"))
-    # asyncio.run(data.get_usagePoint_data("SHM"))
-    # asyncio.run(data.get_usagePoint_data("ST"))
-    # asyncio.run(data.get_usagePoint_data("TH"))
-    # asyncio.run(data.get_usagePoint_data("TMA"))
-    # asyncio.run(data.get_usagePoint_data("TT"))
-    # asyncio.run(data.get_usagePoint_data("VCO"))
-    # asyncio.run(data.get_usagePoint_data("WGT"))
-    # asyncio.run(data.get_usagePoint_data("WT"))
-    # asyncio.run(data.get_usagePoint_data("YVE"))

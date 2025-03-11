@@ -63,6 +63,7 @@ class ZepbenClient:
             print(f"Error parsing dictionary: {e}")
             return {}  # Return an empty dictionary in case of error
 
+
     def get_zepben_network_client_by_feeder_group_name(self, feeder_group_name):
         print(f"group name:{feeder_group_name}")
         basepath = "./EWB/config"
@@ -81,6 +82,7 @@ class ZepbenClient:
         network = client.service
         return network, client
 
+
     def get_zepben_network_all_feeders(self):
         basepath = "./EWB/config"
         channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
@@ -98,6 +100,7 @@ class ZepbenClient:
         network = client.service
         return network, client
     
+
     def split_letters_numbers(self, txt):
         match = re.match(r"([A-Za-z]+)(\d+)", txt) 
         if match:
@@ -105,6 +108,7 @@ class ZepbenClient:
             return match.groups()  
         return None 
     
+
     def get_list_of_feeders_allnetwork(self):
         basepath = "./EWB/config"
         channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
@@ -120,11 +124,9 @@ class ZepbenClient:
         filename = "./feeder_list.txt"
         cleanup(filename)
         log(filename, feeders)
-
-        list_feeders = ['PTN-014']
-
         return feeders
     
+
     def get_list_of_feeders_dictionary(self):
         basepath = "./EWB/config"
         channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
@@ -168,6 +170,7 @@ class ZepbenClient:
         formatted = "{" + formatted.rstrip(",") + "]" + "}"
         return f"""{formatted}"""
 
+
     async def get_client_and_network(self, feeder_mrid):
         basepath = "./EWB/config"
         channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
@@ -181,6 +184,7 @@ class ZepbenClient:
         network = client.service
         (await client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS)).throw_on_error()
         return client, network
+
 
     def get_zepben_client(self, feeder_mrid):
 
@@ -200,6 +204,7 @@ class ZepbenClient:
         client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
         return network
 
+
     def get_client(self, feeder_mrid):
         basepath = "./EWB/config"
         channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
@@ -212,6 +217,7 @@ class ZepbenClient:
         client = SyncNetworkConsumerClient(channel=channel)
         client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
         return client
+
 
     def get_network_and_networkClient(self, feeder_mrid):
 
@@ -229,6 +235,7 @@ class ZepbenClient:
         network_client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()    
         return network, network_client
     
+
     async def get_network_customer_client_service(self, feeder_mird):
         basepath = "./EWB/config"
 
@@ -248,6 +255,7 @@ class ZepbenClient:
             (await customer_client.get_customers_for_container(lvf.mrid)).throw_on_error()
 
         return network_service, customer_service
+    
     
     async def get_network_service_client_service_Byfeeder_group_name(self, feeder_group_name):
         basepath = "./EWB/config"
