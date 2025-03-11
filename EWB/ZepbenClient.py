@@ -256,7 +256,7 @@ class ZepbenClient:
 
         return network_service, customer_service
     
-    
+
     async def get_network_service_client_service_Byfeeder_group_name(self, feeder_group_name):
         basepath = "./EWB/config"
 
@@ -277,6 +277,9 @@ class ZepbenClient:
             (await network_client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS)).throw_on_error()
             for lvf in network_service.objects(LvFeeder):
                 (await customer_client.get_customers_for_container(lvf.mrid)).throw_on_error()
+
+            for feeder in network_service.objects(Feeder):
+                (await customer_client.get_customers_for_container(feeder.mrid)).throw_on_error()
 
         return network_service, customer_service
     

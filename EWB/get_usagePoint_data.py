@@ -88,7 +88,7 @@ class usagePoint_data:
                 if isinstance(eq, EnergyConsumer):
                     supply_point = eq
                     
-            line = f"{usage_point.mrid}';'{usage_point.__str__()}';'{usage_point.usage_point_location}';'{usage_point.usage_point_location.main_address}';'{list(usage_point.usage_point_location.points)}';'{usage_point.usage_point_location.name}';'{usage_point.usage_point_location.description}"
+            line = f"{feeders_group_name}';'{usage_point.mrid}';'{usage_point.__str__()}';'{usage_point.usage_point_location}';'{usage_point.usage_point_location.main_address}';'{list(usage_point.usage_point_location.points)}';'{usage_point.usage_point_location.name}';'{usage_point.usage_point_location.description}"
 
             log(filename, f"Usage point: {usage_point.mrid}")
             for name in usage_point.names:
@@ -130,22 +130,26 @@ class usagePoint_data:
                 create_csv(f"./{csv_filename}", *cleaned_row)
 
 
+    async def process_in_chunks(self, feeders_group_names, chunk_size, csv_filename, filename):
+        for i in range(0, len(feeders_group_names), chunk_size):
+            chunk = feeders_group_names[i:i + chunk_size]
+            await asyncio.gather(
+                *(self.get_usagePoint_data_by_feeder_groupname(feeder, csv_filename, filename) for feeder in chunk)
+        )
+            
+
     async def main(self):
         csv_filename = f"{self.basepath}/feeders_{self.name}_{self.now}.csv"
         filename = f"{self.basepath}/feeders_{self.name}_{self.now}.txt"
         cleanup(filename)
         cleanup(csv_filename)
-        headers = f"usage_point.mrid,usage_point.__str__(),usage_point_location,usage_point_location.main_address,usage_point_location_points,usage_point_location.name,usage_point_location.description,usage_point.NMI,meter.mrid,meter.__str__(),meter.description,meter.name,meter.custormer_mird,customer.mrid,customer.__str__(),customer.special_need,customer.kind,customer.kind.short_name,usage_point.equipment.rated_s,usage_point.equipment.rated_u,supply_point.mrid,list(equipment.units)"
+        headers = f"feeders_group_name,usage_point.mrid,usage_point.__str__(),usage_point_location,usage_point_location.main_address,usage_point_location_points,usage_point_location.name,usage_point_location.description,usage_point.NMI,meter.mrid,meter.__str__(),meter.description,meter.name,meter.custormer_mird,customer.mrid,customer.__str__(),customer.special_need,customer.kind,customer.kind.short_name,usage_point.equipment.rated_s,usage_point.equipment.rated_u,supply_point.mrid,list(equipment.units)"
         create_csv(f"./{csv_filename}", *headers.split(','))
-
-        feeders_group_names = [
-            "AW", "BD", "BKN", "BLT", "BMS", "BY", "CN", "COO", "CS", "EP", "EPN", "ES", "FE", "FF", "FT", "FW",
-            "HB", "KLO", "MAT", "MB", "MISC", "NEL", "NH", "NS", "NT", "PTN", "PV", "SA", "SBY", "SHM", "ST", "TH",
-            "TMA", "TT", "VCO", "WGT", "WT", "YVE"
-        ]
-        
-        await asyncio.gather(*(self.get_usagePoint_data_by_feeder_groupname(feeder, csv_filename, filename) for feeder in feeders_group_names))
-
+        feeders_group_names = ["AW", "BD", "BKN", "BLT", "BMS", "BY", "CN", "COO", "CS", "EP", "EPN", "ES", "FE", "FF", "FT", "FW","HB", "KLO", "MAT", "MB", "MISC", "NEL", "NH", "NS", "NT", "PTN", "PV", "SA", "SBY", "SHM", "ST", "TH","TMA", "TT", "VCO", "WGT", "WT", "YVE"]
+        # chunk_size = 4
+        # await self.process_in_chunks(feeders_group_names, chunk_size, csv_filename, filename)
+        for site in feeders_group_names:
+            await self.get_usagePoint_data_by_feeder_groupname(site, csv_filename, filename)
 
 if __name__ == "__main__":
     obj = usagePoint_data()
