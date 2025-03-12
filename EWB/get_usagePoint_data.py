@@ -21,15 +21,28 @@ class usagePoint_data:
         self.now = datetime.datetime.now().strftime("%d%m%Y")
         self.basepath = "./EWB/outputs"
         self.feeder_mrid = "PTN-014"
-        self.data_path = f"{self.basepath}/{self.feeder_mrid}_{self.name}_{self.now}.txt"
-        self.csv_data_path = f"{self.basepath}/{self.feeder_mrid}_{self.name}_{self.now}.csv"
+        self.data_path = f"{self.basepath}/{self.feeder_mrid}_{self.name}_{self.now}.csv"
         self.cls = UsagePoint
         if not os.path.exists(f"{self.basepath}"):
             os.makedirs(f"{self.basepath}")
 
-    async def get_usagePoint_data(self):
+    def get_usagePoint_data(self):
         filename = self.data_path
-        csv_filename = self.csv_data_path
+        cleanup(filename)
+        headers = f"asset,mrid,name,names,approved_inverter_capacity,connection_category,description,end_devices,equipment,is_virtual,phase_code,rated_power,usage_point_location"
+        create_csv(f"./{filename}", *headers.split(','))
+
+        network_service, customer_service = ZepbenClient().get_network_and_networkClient(self.feeder_mrid)
+        for up in network_service.objects(UsagePoint):
+            print(f"up:{up}")
+            line = f"'{up}';'{up.mrid}';'{up.name}';'{list(up.names)}';'{up.approved_inverter_capacity}';'{up.connection_category}';'{up.description}';'{list(up.end_devices)}';'{list(up.equipment)}';'{up.is_virtual}';'{up.phase_code}';'{up.rated_power}';'{up.usage_point_location}'"
+            cleaned_row = [value.strip("'") for value in line.split("';'")]
+            create_csv(f"./{filename}", *cleaned_row)
+            print(line)
+
+    async def get_usagePoint_meter_customer_data(self):
+        csv_filename = f"{self.basepath}/usagepoint_meter_customer_feeder_{self.feeder_mrid}_{self.name}_{self.now}.csv"
+        filename = f"{self.basepath}/usagepoint_meter_customer_feeder_{self.feeder_mrid}_{self.name}_{self.now}.txt"
         cleanup(filename)
         cleanup(csv_filename)
         network_service, customer_service = await ZepbenClient().get_network_customer_client_service(self.feeder_mrid)
@@ -80,7 +93,7 @@ class usagePoint_data:
                 cleaned_row = [value.strip("'") for value in line.split("';'")]
                 create_csv(f"./{csv_filename}", *cleaned_row)
 
-    async def get_usagePoint_data_by_feeder_groupname(self, feeders_group_name, csv_filename, filename):
+    async def get_usagePoint_meter_customer_data_by_feeder_groupname(self, feeders_group_name, csv_filename, filename):
         network_service, customer_service = await ZepbenClient().get_network_service_client_service_Byfeeder_group_name(feeders_group_name)
         for usage_point in network_service.objects(UsagePoint):
             supply_point = None
@@ -130,29 +143,24 @@ class usagePoint_data:
                 create_csv(f"./{csv_filename}", *cleaned_row)
 
 
-    async def process_in_chunks(self, feeders_group_names, chunk_size, csv_filename, filename):
-        for i in range(0, len(feeders_group_names), chunk_size):
-            chunk = feeders_group_names[i:i + chunk_size]
-            await asyncio.gather(
-                *(self.get_usagePoint_data_by_feeder_groupname(feeder, csv_filename, filename) for feeder in chunk)
-        )
-            
+    async def main(self, recon):
+        if recon:
+            csv_filename = f"{self.basepath}/recon_feeders_{self.name}_{self.now}.csv"
+            filename = f"{self.basepath}/recon_feeders_{self.name}_{self.now}.txt"
+            cleanup(filename)
+            cleanup(csv_filename)
+            headers = f"feeders_group_name,usage_point.mrid,usage_point.__str__(),usage_point_location,usage_point_location.main_address,usage_point_location_points,usage_point_location.name,usage_point_location.description,usage_point.NMI,meter.mrid,meter.__str__(),meter.description,meter.name,meter.custormer_mird,customer.mrid,customer.__str__(),customer.special_need,customer.kind,customer.kind.short_name,usage_point.equipment.rated_s,usage_point.equipment.rated_u,supply_point.mrid,list(equipment.units)"
+            create_csv(f"./{csv_filename}", *headers.split(','))
+            feeders_group_names = ["AW", "BD", "BKN", "BLT", "BMS", "BY", "CN", "COO", "CS", "EP", "EPN", "ES", "FE", "FF", "FT", "FW","HB", "KLO", "MAT", "MB", "MISC", "NEL", "NH", "NS", "NT", "PTN", "PV", "SA", "SBY", "SHM", "ST", "TH","TMA", "TT", "VCO", "WGT", "WT", "YVE"]
 
-    async def main(self):
-        csv_filename = f"{self.basepath}/feeders_{self.name}_{self.now}.csv"
-        filename = f"{self.basepath}/feeders_{self.name}_{self.now}.txt"
-        cleanup(filename)
-        cleanup(csv_filename)
-        headers = f"feeders_group_name,usage_point.mrid,usage_point.__str__(),usage_point_location,usage_point_location.main_address,usage_point_location_points,usage_point_location.name,usage_point_location.description,usage_point.NMI,meter.mrid,meter.__str__(),meter.description,meter.name,meter.custormer_mird,customer.mrid,customer.__str__(),customer.special_need,customer.kind,customer.kind.short_name,usage_point.equipment.rated_s,usage_point.equipment.rated_u,supply_point.mrid,list(equipment.units)"
-        create_csv(f"./{csv_filename}", *headers.split(','))
-        feeders_group_names = ["AW", "BD", "BKN", "BLT", "BMS", "BY", "CN", "COO", "CS", "EP", "EPN", "ES", "FE", "FF", "FT", "FW","HB", "KLO", "MAT", "MB", "MISC", "NEL", "NH", "NS", "NT", "PTN", "PV", "SA", "SBY", "SHM", "ST", "TH","TMA", "TT", "VCO", "WGT", "WT", "YVE"]
-        # chunk_size = 4
-        # await self.process_in_chunks(feeders_group_names, chunk_size, csv_filename, filename)
-        for site in feeders_group_names:
-            await self.get_usagePoint_data_by_feeder_groupname(site, csv_filename, filename)
+            for site in feeders_group_names:
+                await self.get_usagePoint_meter_customer_data_by_feeder_groupname(site, csv_filename, filename)
+        else:
+            self.get_usagePoint_data()
 
 if __name__ == "__main__":
     obj = usagePoint_data()
-    loop = asyncio.get_event_loop()
-    loop.create_task(obj.main())
-    loop.run_forever() 
+    # loop = asyncio.get_event_loop()
+    # loop.create_task(obj.main(False))
+    # loop.run_forever()
+    asyncio.run(obj.main(False))
