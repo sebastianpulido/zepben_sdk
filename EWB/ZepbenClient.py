@@ -126,6 +126,18 @@ class ZepbenClient:
         log(filename, feeders)
         return feeders
     
+    def get_list_of_feeders(self):
+        basepath = "./EWB/config"
+        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
+                                        rpc_port=50051,
+                                        client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
+                                        client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
+                                        ca_filename=f"{basepath}/X1.pem",
+                                        verify_conf=False)
+        hierarchy_client = SyncNetworkConsumerClient(channel=channel)
+        network_hierarchy = hierarchy_client.get_network_hierarchy().throw_on_error().value
+        list_feeders = network_hierarchy.feeders.values()
+        return sorted(fdr.name.strip() for fdr in list_feeders)
 
     def get_list_of_feeders_dictionary(self):
         basepath = "./EWB/config"

@@ -95,6 +95,22 @@ class circuit_data:
                     else:
                         print(f"looping, skipping {lvf.mrid}")
 
+    def get_asset_data(self, id, type, feeder):
+        # c = self.network.get(circuit_id, LvFeeder)
+        # print(f"circuit data ({circuit_id}): {c.__str__()}")
+
+        network = ZepbenClient().get_zepben_network_all_feeders()
+        for lvf in network.objects(LvFeeder):
+            if lvf.normal_head_terminal:
+                if isinstance(lvf.normal_head_terminal.conducting_equipment, Switch):
+                    current = lvf.mrid.split("-")[0]
+                    print(f"current lvf: {current}")
+                    if current == circuit_id:
+                        print(f"found circuit: {circuit_id}")
+                        break
+                    else:
+                        print(f"looping, skipping {lvf.mrid}")
+
 data = circuit_data()
 # data.get_circuit_data()
 # data.get_circuit_data_allfeeders("PTN")

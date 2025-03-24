@@ -38,13 +38,15 @@ class asset_data:
         line = "not found!"
         clss = self.get_type_by_name(type)
         network = ZepbenClient().get_zepben_client(feeder)
-
         print(f"Processing feeder {feeder}")
         try:
             print(f"Processing asset {clss}")
             for obj in network.objects(clss):
                 if str(obj.mrid).__contains__(mrid):
-                    line = f"'{feeder}';'{type}';'{obj.mrid}';'{obj.in_service}';'{obj.is_normally_open()}';'{obj.is_open()}';'{obj.name}';'{list(obj.names)}'"
+                    if type == "AcLineSegment":
+                        line = f"'{feeder}';'{type}';'{obj.mrid}';'{obj.in_service}';'<N/A>';'<N/A>';'{obj.name}';'{list(obj.names)}'"
+                    else:    
+                        line = f"'{feeder}';'{type}';'{obj.mrid}';'{obj.in_service}';'{obj.is_normally_open()}';'{obj.is_open()}';'{obj.name}';'{list(obj.names)}'"
                     self.write_csv_file(line, False)
 
 
@@ -87,7 +89,8 @@ class asset_data:
             "Disconnector" : Disconnector,
             "Recloser" : Recloser,
             "LoadBreakSwitch" : LoadBreakSwitch,
-            "Fuse" : Fuse
+            "Fuse" : Fuse,
+            "AcLineSegment" : AcLineSegment
         }
         return clss[type]
 

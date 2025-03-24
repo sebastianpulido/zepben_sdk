@@ -31,10 +31,13 @@ class jumper_data:
         # headers = "site,mrid,type,str(energy_consumer),in service,normal_lv_feeders,list(names),name,current_containers,containers"
         # create_csv(f"./{filename}", *headers.split(','))
         network, client = ZepbenClient().get_zepben_network_client_by_feeder_group_name(feeders_group_name)
-        for ec in network.objects(Jumper):
-            line = f"'{feeders_group_name}';'{ec.mrid}';'{ec.__str__()}';'{ec.in_service}';'{list(ec.normal_feeders)}';'{list(ec.names)[0].name}';'{ec.name}';'{list(ec.current_containers)}';'{list(ec.containers)}"
+        for jmp in network.objects(Jumper):
+            line = f"'{feeders_group_name}';'{jmp.mrid}';'{jmp.__str__()}';'{jmp.in_service}';'{list(jmp.normal_feeders)}';'{list(jmp.names)[0].name}';'{jmp.name}';'{list(jmp.location.points)}';'{jmp.base_voltage}';'{jmp.num_sites()}';'{list(jmp.sites)}';'{jmp.num_substations()}';'{list(jmp.substations)}';'{jmp.num_normal_feeders()}';'{list(jmp.current_feeders)}';'{list(jmp.current_lv_feeders)}';'{list(jmp.normal_lv_feeders)}';'{jmp.num_names()}';'{jmp.num_operational_restrictions()}';'{list(jmp.operational_restrictions)}';'{jmp.num_usage_points()}';'{list(jmp.usage_points)}';'{jmp.num_terminals()}';'{list(jmp.terminals)}';'{jmp.num_containers()}';'{jmp.num_current_containers()}';'{list(jmp.current_containers)}';'{list(jmp.containers)}"
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
+
+            line = f"'feeders_group_name={feeders_group_name}';'mrid={jmp.mrid}';'{jmp.__str__()}';'in_service={jmp.in_service}';'normal_feeders={list(jmp.normal_feeders)}';'names={list(jmp.names)[0].name}';'name={jmp.name}';'current_containers={list(jmp.current_containers)}';'containers={list(jmp.containers)}"
+            print(line)
 
 
     def get_jumper_byID(self, ec_id):
@@ -60,7 +63,7 @@ class jumper_data:
     def prepare_csvfile(self):
         filename = self.recon_data_path#.replace("recon_", f"recon_{feeders_group_name}_")
         cleanup(filename)
-        headers = "site,mrid,type,str(energy_consumer),in service,normal_lv_feeders,list(names),name,current_containers,containers"
+        headers = "site,mrid,str(jumper),in service,normal feeders,list(names),name,location.points,base voltage,num sites,sites,num substations,substations,num normal feeders,current feeders,current lv feeders,normal lv feeders,num names,num_operational_restrictions,operational_restrictions,num_usage_points,usage points,num terminals,terminals,num containers,num current containers,current_containers,containers"
         create_csv(f"./{filename}", *headers.split(','))
         
 data = jumper_data()

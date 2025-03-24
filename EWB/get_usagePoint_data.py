@@ -26,16 +26,17 @@ class usagePoint_data:
         if not os.path.exists(f"{self.basepath}"):
             os.makedirs(f"{self.basepath}")
 
-    def get_usagePoint_data(self):
-        filename = self.data_path
+    def get_usagePoint_data(self, feeder_mrid):
+        filename = f"{self.basepath}/{feeder_mrid}_{self.name}_{self.now}.csv"
         cleanup(filename)
-        headers = f"asset,mrid,name,names,approved_inverter_capacity,connection_category,description,end_devices,equipment,is_virtual,phase_code,rated_power,usage_point_location"
+        headers = f"feeder,asset,mrid,name,names[0],names,is_metered,approved_inverter_capacity,connection_category,description,end_devices,is_virtual,phase_code,rated_power,usage_point_location.main_address,usage_point_location.name,usage_point_location.points,up.usage_point_location.names,equipment"
         create_csv(f"./{filename}", *headers.split(','))
 
-        network_service, customer_service = ZepbenClient().get_network_and_networkClient(self.feeder_mrid)
+        network_service, customer_service = ZepbenClient().get_network_and_networkClient(feeder_mrid)
         for up in network_service.objects(UsagePoint):
             print(f"up:{up}")
-            line = f"'{up}';'{up.mrid}';'{up.name}';'{list(up.names)}';'{up.approved_inverter_capacity}';'{up.connection_category}';'{up.description}';'{list(up.end_devices)}';'{list(up.equipment)}';'{up.is_virtual}';'{up.phase_code}';'{up.rated_power}';'{up.usage_point_location}'"
+            line = f"'{feeder_mrid}';'{up}';'{up.mrid}';'{up.name}';'{list(up.names)[0].name}';'{list(up.names)}';'{up.is_metered()}';'{up.approved_inverter_capacity}';'{up.connection_category}';'{up.description}';'{list(up.end_devices)}';'{up.is_virtual}';'{up.phase_code}';'{up.rated_power}';'{up.usage_point_location.main_address}';'{up.usage_point_location.name}';'{list(up.usage_point_location.points)}';'{list(up.usage_point_location.names)}';'{list(up.equipment)}'"
+
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
             print(line)
@@ -72,7 +73,6 @@ class usagePoint_data:
                 log(filename, f"type: {customer.kind.short_name}")
                 log(filename, f"meter description: {meter.description}")
                 log(filename, f"meter name: {meter.name}")
-
 
                 line += f"';'{meter.mrid}';'{meter.__str__()}';'{meter.description}';'{meter.name}';'{meter.customer_mrid}';'{customer.mrid}';'{customer.__str__()}';'{customer.special_need}';'{customer.kind}';'{customer.kind.short_name}"
                 
@@ -156,7 +156,9 @@ class usagePoint_data:
             for site in feeders_group_names:
                 await self.get_usagePoint_meter_customer_data_by_feeder_groupname(site, csv_filename, filename)
         else:
-            self.get_usagePoint_data()
+            all_feeders = ZepbenClient().get_list_of_feeders()
+            for fdr in all_feeders:
+                self.get_usagePoint_data(fdr)
 
 if __name__ == "__main__":
     obj = usagePoint_data()
