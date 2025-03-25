@@ -113,16 +113,19 @@ class geometry_converter:
             csv.write(f"EWB,SDW,Equals?\n")
             row = 2
             for i in range(len(ewb_points)):
-                x1, y1 = self.normalise_precision(ewb_points[i])
-                x2, y2 = self.normalise_precision(sdw_points[i])
-                print(f"ewb_points[i]:{ewb_points[i]}")
-                print(f"sdw_points[i]:{sdw_points[i]}")
-                print (f"x_ewb={x1}")
-                print (f"x_sdw={x2}")
-                print (f"y_ewb={y1}")
-                print (f"y_sdw={y2}")
-                csv.write(f"{x1} {y1},{x2} {y2},=A{row}=B{row}\n")
-                row += 1
+                try:
+                    x1, y1 = self.normalise_precision(ewb_points[i])
+                    x2, y2 = self.normalise_precision(sdw_points[i])
+                    print(f"ewb_points[i]:{ewb_points[i]}")
+                    print(f"sdw_points[i]:{sdw_points[i]}")
+                    print (f"x_ewb={x1}")
+                    print (f"x_sdw={x2}")
+                    print (f"y_ewb={y1}")
+                    print (f"y_sdw={y2}")
+                    csv.write(f"{x1} {y1},{x2} {y2},=A{row}=B{row}\n")
+                    row += 1
+                except:
+                    csv.write(f"not found\n")
         
 if __name__ == "__main__":
     if len(sys.argv) < 3:
