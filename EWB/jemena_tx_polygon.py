@@ -8,6 +8,7 @@ import json
 import pandas as pd
 from shapely.geometry import Polygon
 import geopandas as gpd
+import sys
 
 from zepben.protobuf.nc.nc_requests_pb2 import IncludedEnergizedContainers
 
@@ -16,13 +17,11 @@ from zepben.eas.client.eas_client import EasClient
 from zepben.eas.client.study import Study, Result, GeoJsonOverlay
 
 async def connect_jem():
-    with open("./config.json") as f:
+    with open("./EWB/config/prod_config.json") as f:
         credentials = json.load(f)
 
-    channel = connect_with_token(host=credentials["host"], rpc_port=credentials["port"], access_token=credentials["access_token"], ca_filename="./X1.pem", skip_connection_test=True)
-
+    channel = connect_with_token(host=credentials["host"], rpc_port=credentials["rpc_port"], access_token=credentials["access_token"], ca_filename=credentials["ca_filename"], skip_connection_test=True)
     network_client = NetworkConsumerClient(channel=channel)
-
     network_hierarchy = (await network_client.get_network_hierarchy()).throw_on_error().value
 
     geojson_features = []
@@ -35,6 +34,8 @@ async def connect_jem():
                 for feeder in sub.feeders:
                     if feeder.mrid == "COO-023":
                         await process_feeder(feeder.mrid, channel, geojson_features)
+
+    sys.exit(0)
 
     print("Uploading study")
     await upload_study(credentials, 
