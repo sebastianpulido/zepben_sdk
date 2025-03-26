@@ -162,7 +162,4 @@ class usagePoint_data:
 
 if __name__ == "__main__":
     obj = usagePoint_data()
-    # loop = asyncio.get_event_loop()
-    # loop.create_task(obj.main(False))
-    # loop.run_forever()
     asyncio.run(obj.main(False))

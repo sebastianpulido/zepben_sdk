@@ -15,9 +15,9 @@ from zepben.evolve import PerLengthSequenceImpedance, Conductor, PowerTransforme
 class conductingEquipment_data:
     def __init__(self):
         self.name = self.__class__.__name__
-        now = datetime.datetime.now().strftime("%d%m%Y")
+        self.now = datetime.datetime.now().strftime("%d%m%Y")
         self.basepath = "./EWB/outputs"
-        self.data_path = f"{self.basepath}/{self.name}_{now}.csv"
+        self.data_path = f"{self.basepath}/{self.name}_{self.now}.csv"
         self.network = ZepbenClient().get_zepben_client("PTN-014")
         self.cls = ConductingEquipment
 

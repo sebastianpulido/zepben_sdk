@@ -6,9 +6,37 @@ import ast
 from log import cleanup, log
 from zepben.evolve.streaming.get.network_consumer import SyncNetworkConsumerClient
 from zepben.protobuf.nc.nc_requests_pb2 import IncludedEnergizedContainers
-from zepben.evolve import connect_with_secret, Feeder, LvFeeder, NetworkConsumerClient, CustomerConsumerClient
+from zepben.evolve import connect_with_secret, connect_with_token, Feeder, LvFeeder, NetworkConsumerClient, CustomerConsumerClient
 
 class ZepbenClient:
+
+    production = False
+    basepath = "./EWB/config"
+    print(f"production:{production}")
+
+    def __init__(self):
+        if (self.production):
+            with open(f"{self.basepath}/prod_config.json") as f:
+                credentials = json.load(f)
+            print(f"host:{credentials["host"]}")
+            self.channel = connect_with_token(
+                    host=credentials["host"],
+                    rpc_port=credentials["rpc_port"],
+                    ca_filename=credentials["ca_filename"],
+                    access_token=credentials["access_token"],
+                    skip_connection_test=True)
+            
+        else:
+            with open(f"{self.basepath}/nonprod_config.json") as f:
+                credentials = json.load(f)
+            print(f"host:{credentials["host"]}")
+            self.channel = connect_with_secret(
+                host=credentials["host"],
+                rpc_port=credentials["rpc_port"],
+                client_id=credentials["client_id"],
+                client_secret=credentials["client_secret"],
+                ca_filename=credentials["ca_filename"],
+                verify_conf=False)
 
     def get_feeders_by_group_name(self, feeder_group_name):
 
@@ -63,18 +91,12 @@ class ZepbenClient:
             print(f"Error parsing dictionary: {e}")
             return {}  # Return an empty dictionary in case of error
 
+    def get_zepben_channel(self):
+        return self.channel
+
 
     def get_zepben_network_client_by_feeder_group_name(self, feeder_group_name):
-        print(f"group name:{feeder_group_name}")
-        basepath = "./EWB/config"
-        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
-                                        rpc_port=50051,
-                                        client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
-                                        client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                        ca_filename=f"{basepath}/X1.pem",
-                                        verify_conf=False)
-
-        client = SyncNetworkConsumerClient(channel=channel)
+        client = SyncNetworkConsumerClient(channel=self.channel)
         feeders = self.get_feeders_by_group_name(feeder_group_name)
         for feeder_mrid in feeders:
             client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
@@ -84,15 +106,7 @@ class ZepbenClient:
 
 
     def get_zepben_network_all_feeders(self):
-        basepath = "./EWB/config"
-        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
-                                        rpc_port=50051,
-                                        client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
-                                        client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                        ca_filename=f"{basepath}/X1.pem",
-                                        verify_conf=False)
-
-        client = SyncNetworkConsumerClient(channel=channel)
+        client = SyncNetworkConsumerClient(channel=self.channel)
         feeders = self.get_list_of_feeders_allnetwork()
         for feeder_mrid in feeders:
             client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
@@ -110,14 +124,7 @@ class ZepbenClient:
     
 
     def get_list_of_feeders_allnetwork(self):
-        basepath = "./EWB/config"
-        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
-                                        rpc_port=50051,
-                                        client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
-                                        client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                        ca_filename=f"{basepath}/X1.pem",
-                                        verify_conf=False)
-        hierarchy_client = SyncNetworkConsumerClient(channel=channel)
+        hierarchy_client = SyncNetworkConsumerClient(channel=self.channel)
         network_hierarchy = hierarchy_client.get_network_hierarchy().throw_on_error().value
         list_feeders = network_hierarchy.feeders.values()
         feeders = sorted(fdr.name.strip() for fdr in list_feeders)
@@ -127,27 +134,13 @@ class ZepbenClient:
         return feeders
     
     def get_list_of_feeders(self):
-        basepath = "./EWB/config"
-        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
-                                        rpc_port=50051,
-                                        client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
-                                        client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                        ca_filename=f"{basepath}/X1.pem",
-                                        verify_conf=False)
-        hierarchy_client = SyncNetworkConsumerClient(channel=channel)
+        hierarchy_client = SyncNetworkConsumerClient(channel=self.channel)
         network_hierarchy = hierarchy_client.get_network_hierarchy().throw_on_error().value
         list_feeders = network_hierarchy.feeders.values()
         return sorted(fdr.name.strip() for fdr in list_feeders)
 
     def get_list_of_feeders_dictionary(self):
-        basepath = "./EWB/config"
-        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
-                                        rpc_port=50051,
-                                        client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
-                                        client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                        ca_filename=f"{basepath}/X1.pem",
-                                        verify_conf=False)
-        hierarchy_client = SyncNetworkConsumerClient(channel=channel)
+        hierarchy_client = SyncNetworkConsumerClient(channel=self.channel)
         network_hierarchy = hierarchy_client.get_network_hierarchy().throw_on_error().value
         list_feeders = network_hierarchy.feeders.values()
         if not list_feeders:
@@ -184,82 +177,35 @@ class ZepbenClient:
 
 
     async def get_client_and_network(self, feeder_mrid):
-        basepath = "./EWB/config"
-        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
-                                        rpc_port=50051,
-                                        client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
-                                        client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                        ca_filename=f"{basepath}/X1.pem",
-                                        verify_conf=False)
-
-        client = SyncNetworkConsumerClient(channel=channel)
+        client = SyncNetworkConsumerClient(channel=self.channel)
         network = client.service
         (await client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS)).throw_on_error()
         return client, network
 
 
     def get_zepben_client(self, feeder_mrid):
-
-        # with open("./config-fargate.json") as f:
-            #     credentials = json.load(f)
-
-        basepath = "./EWB/config"
-        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
-                                        rpc_port=50051,
-                                        client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
-                                        client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                        ca_filename=f"{basepath}/X1.pem",
-                                        verify_conf=False)
-
-        client = SyncNetworkConsumerClient(channel=channel)
+        client = SyncNetworkConsumerClient(channel=self.channel)
         network = client.service
         client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
         return network
 
 
     def get_client(self, feeder_mrid):
-        basepath = "./EWB/config"
-        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
-                                        rpc_port=50051,
-                                        client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
-                                        client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                        ca_filename=f"{basepath}/X1.pem",
-                                        verify_conf=False)
-
-        client = SyncNetworkConsumerClient(channel=channel)
+        client = SyncNetworkConsumerClient(channel=self.channel)
         client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()
         return client
 
 
     def get_network_and_networkClient(self, feeder_mrid):
-
-        basepath = "./EWB/config"
-
-        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
-                                        rpc_port=50051,
-                                        client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
-                                        client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                        ca_filename=f"{basepath}/X1.pem",
-                                        verify_conf=False)
-        
-        network_client = SyncNetworkConsumerClient(channel=channel)    
+        network_client = SyncNetworkConsumerClient(channel=self.channel)    
         network = network_client.service    
         network_client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS).throw_on_error()    
         return network, network_client
     
 
     async def get_network_customer_client_service(self, feeder_mird):
-        basepath = "./EWB/config"
-
-        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
-                                        rpc_port=50051,
-                                        client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
-                                        client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                        ca_filename=f"{basepath}/X1.pem",
-                                        verify_conf=False)
-                                        
-        network_client = NetworkConsumerClient(channel=channel)
-        customer_client = CustomerConsumerClient(channel=channel)
+        network_client = NetworkConsumerClient(channel=self.channel)
+        customer_client = CustomerConsumerClient(channel=self.channel)
         network_service = network_client.service
         customer_service = customer_client.service
         (await network_client.get_equipment_container(feeder_mird, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS)).throw_on_error()
@@ -270,17 +216,8 @@ class ZepbenClient:
     
 
     async def get_network_service_client_service_Byfeeder_group_name(self, feeder_group_name):
-        basepath = "./EWB/config"
-
-        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
-                                        rpc_port=50051,
-                                        client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
-                                        client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                        ca_filename=f"{basepath}/X1.pem",
-                                        verify_conf=False)
-                                        
-        network_client = NetworkConsumerClient(channel=channel)
-        customer_client = CustomerConsumerClient(channel=channel)
+        network_client = NetworkConsumerClient(channel=self.channel)
+        customer_client = CustomerConsumerClient(channel=self.channel)
         network_service = network_client.service
         customer_service = customer_client.service
         feeders = self.get_feeders_by_group_name(feeder_group_name)
@@ -299,4 +236,4 @@ class ZepbenClient:
 if __name__ == "__main__":
     sdk = ZepbenClient()
     sdk.get_list_of_feeders_allnetwork()
-    sdk.get_feeders_by_group_name("PTN")
+    # sdk.get_feeders_by_group_name("PTN")

@@ -16,6 +16,8 @@ from zepben.evolve import IdentifiedObject, PerLengthSequenceImpedance, Fuse, Co
 # with open("config.json") as f:
 #     c = json.loads(f.read())
 
+from ZepbenClient import ZepbenClient
+
 class total_counts_network:
 
     def __init__(self):
@@ -52,16 +54,10 @@ class total_counts_network:
                     create_csv(f"./{filename}", *cleaned_row)
 
     def loop_all_assets(self):
-        ids = "GroundDisconnector, Jumper, Cut, EnergyConsumer, BusbarSection, Breaker, Fuse, Junction, LoadBreakSwitch, PowerTransformer, Recloser, AcLineSegment, PowerElectronicsConnection, EnergyConsumer, GroundDisconnector, Disconnector, Jumper, Feeder, Site, Substation, LvFeeder"
-        list_clss = [GroundDisconnector]#, Jumper, Cut]#, BusbarSection, Breaker, Fuse, Junction, LoadBreakSwitch, PowerTransformer, Recloser, AcLineSegment, PowerElectronicsConnection, EnergyConsumer, GroundDisconnector, Disconnector, Jumper, Feeder, Site, Substation, LvFeeder]
+        ids = "GroundDisconnector, Jumper, Cut, EnergyConsumer, BusbarSection, Breaker, Fuse, Junction, LoadBreakSwitch, PowerTransformer, Recloser, AcLineSegment, PowerElectronicsConnection, GroundDisconnector, Disconnector, Jumper, Feeder, Site, Substation, LvFeeder"
+        list_clss = [GroundDisconnector, Jumper, Cut, EnergyConsumer, BusbarSection, Breaker, Fuse, Junction, LoadBreakSwitch, PowerTransformer, Recloser, AcLineSegment, PowerElectronicsConnection, GroundDisconnector, Disconnector, Jumper, Feeder, Site, Substation, LvFeeder]
 
-        basepath = "./EWB/config"
-        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
-                                        rpc_port=50051,
-                                        client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
-                                        client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                        ca_filename=f"{basepath}/X1.pem",
-                                        verify_conf=False)
+        channel = ZepbenClient().get_zepben_channel()
         hierarchy_client = SyncNetworkConsumerClient(channel=channel)
         network_hierarchy = hierarchy_client.get_network_hierarchy().throw_on_error().value
 

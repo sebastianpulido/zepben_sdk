@@ -16,11 +16,14 @@ from zepben.evolve import connect_with_token, PowerSystemResource, NetworkConsum
 from zepben.eas.client.eas_client import EasClient
 from zepben.eas.client.study import Study, Result, GeoJsonOverlay
 
+from ZepbenClient import ZepbenClient
+
 async def connect_jem():
     with open("./EWB/config/prod_config.json") as f:
         credentials = json.load(f)
 
     channel = connect_with_token(host=credentials["host"], rpc_port=credentials["rpc_port"], access_token=credentials["access_token"], ca_filename=credentials["ca_filename"], skip_connection_test=True)
+    
     network_client = NetworkConsumerClient(channel=channel)
     network_hierarchy = (await network_client.get_network_hierarchy()).throw_on_error().value
 
@@ -35,7 +38,6 @@ async def connect_jem():
                     if feeder.mrid == "COO-023":
                         await process_feeder(feeder.mrid, channel, geojson_features)
 
-    sys.exit(0)
 
     print("Uploading study")
     await upload_study(credentials, 

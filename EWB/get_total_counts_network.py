@@ -15,11 +15,11 @@ class total_counts_network:
 
     def __init__(self):
         name = self.__class__.__name__
-        now = datetime.datetime.now().strftime("%d%m%Y")
+        self.now = datetime.datetime.now().strftime("%d%m%Y")
         basepath = "./EWB/outputs"
         self.feeder_mrid = "PTN-014"
-        self.data_path = f"{basepath}/{name}_{now}.txt"
-        self.allassets_path = f"{basepath}/allmrids_{name}_{now}.csv"
+        self.data_path = f"{basepath}/{name}_{self.now}.txt"
+        self.allassets_path = f"{basepath}/allmrids_{name}_{self.now}.csv"
         self.network, self.client = ZepbenClient().get_zepben_network_all_feeders()
 
         if not os.path.exists(f"{basepath}"):
@@ -51,7 +51,6 @@ class total_counts_network:
         ids = "BusbarSection, Breaker, Fuse, Junction, LoadBreakSwitch, PowerTransformer, Recloser, AcLineSegment, PowerElectronicsConnection, EnergyConsumer, GroundDisconnector, Disconnector, Jumper, Feeder, Site, Substation, LvFeeder"
         counter = 0
         list_clss = [BusbarSection, Breaker, Fuse, Junction, LoadBreakSwitch, PowerTransformer, Recloser, AcLineSegment, PowerElectronicsConnection, EnergyConsumer, GroundDisconnector, Disconnector, Jumper, Feeder, Site, Substation, LvFeeder]
-        list_clss = [GroundDisconnector]
         for clss in list_clss:
             self.get_all_assets_mrids(clss, ids.split(",")[counter])
             counter += 1

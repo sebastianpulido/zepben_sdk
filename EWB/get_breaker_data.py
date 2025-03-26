@@ -14,11 +14,11 @@ from zepben.evolve import PerLengthSequenceImpedance, Conductor, PowerTransforme
 class breaker_data:
     def __init__(self):
         self.name = self.__class__.__name__
-        now = datetime.datetime.now().strftime("%d%m%Y")
+        self.now = datetime.datetime.now().strftime("%d%m%Y")
         self.basepath = "./EWB/outputs"
-        self.data_path = f"{self.basepath}/{self.name}_{now}.csv"
+        self.data_path = f"{self.basepath}/{self.name}_{self.now}.csv"
         self.feeder_mrid = "AW0-001"
-        self.feeders_data_path = f"{self.basepath}/feeders_{self.name}_data_{now}.csv"
+        self.feeders_data_path = f"{self.basepath}/feeders_{self.name}_data_{self.now}.csv"
         self.network = ZepbenClient().get_zepben_client(self.feeder_mrid)
         self.cls = Breaker
         if not os.path.exists(f"{self.basepath}"):

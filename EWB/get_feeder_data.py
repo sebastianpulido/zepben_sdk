@@ -18,11 +18,11 @@ class feeder_data:
 
     def __init__(self):
         self.name = self.__class__.__name__
-        now = datetime.datetime.now().strftime("%d%m%Y")
+        self.now = datetime.datetime.now().strftime("%d%m%Y")
         self.basepath = "./EWB/outputs"
         feeder_mrid = "PTN-014"
-        self.data_path = f"{self.basepath}/{self.name}_{now}.csv"
-        self.txt_path = f"{self.basepath}/{self.name}_data_{now}.txt"
+        self.data_path = f"{self.basepath}/{self.name}_{self.now}.csv"
+        self.txt_path = f"{self.basepath}/{self.name}_data_{self.now}.txt"
         self.network = ZepbenClient().get_zepben_client(feeder_mrid)
         self.cls = Feeder
 
@@ -80,32 +80,6 @@ class feeder_data:
             cleaned_row = [value.strip("'") for value in line.split("';'")]
             create_csv(f"./{filename}", *cleaned_row)
 
-            # line2 = f"""
-            # mrid: {fdr.mrid},
-            # __str__: {fdr.__str__()},
-            # name: {fdr.name},
-            # description: {fdr.description},
-            # location: {fdr.location},
-            # asset_info: {fdr.asset_info},
-            # num_current_equipment: {fdr.num_current_equipment()},
-            # num_normal_energized_lv_current_feeders: {fdr.num_normal_energized_lv_feeders()},
-            # num_equipment: {fdr.num_equipment()},
-            # num_controls: {fdr.num_controls},
-            # num_names: {fdr.num_names()},
-            # asset_info: {fdr.asset_info},
-            # num_energized_loops: {list(fdr.current_equipment)},
-            # normal_energized_lv_current_feeders: {list(fdr.normal_energized_lv_feeders)},
-            # has_controls: {fdr.has_controls},
-            # names: {list(fdr.names)},
-            # normal_energizing_substation: {fdr.normal_energizing_substation},
-            # normal_head_terminal: {fdr.normal_head_terminal},
-            # normal_lv_feeders: {_normal_lv_feeders},
-            # normal_feeders: {_normal_feeders},
-            # _current_feeders: {_current_feeders},
-            # _lv_current_feeders: {_current_lv_feeders},
-            # equipment: {list(fdr.equipment) if fdr.equipment is not None else []}
-            # \n"""
-            # log(filename_txt, line2)
 
     def get_feeder_data_allfeeders(self, feeders_group_name):
         filename = f"{self.basepath}/feeders_{self.name}_{self.now}.csv"

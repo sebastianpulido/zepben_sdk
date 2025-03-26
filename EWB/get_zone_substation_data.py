@@ -15,13 +15,13 @@ class substation_data:
 
     def __init__(self):
         name = self.__class__.__name__
-        now = datetime.datetime.now().strftime("%d%m%Y")
+        self.now = datetime.datetime.now().strftime("%d%m%Y")
         basepath = "./EWB/outputs"
         self.feeder_mrid = "PTN-014"
-        self.data_path = f"{basepath}/{self.feeder_mrid}_{name}_data_{now}.txt"
-        self.equip_data_path = f"{basepath}/{name}_equipment_{now}.txt"
-        self.feeders_data_path = f"{basepath}/allfeeders_{name}_{now}.csv"
-        self.subs_data_path = f"{basepath}/subslist_{name}_{now}.csv"
+        self.data_path = f"{basepath}/{self.feeder_mrid}_{name}_data_{self.now}.txt"
+        self.equip_data_path = f"{basepath}/{name}_equipment_{self.now}.txt"
+        self.feeders_data_path = f"{basepath}/allfeeders_{name}_{self.now}.csv"
+        self.subs_data_path = f"{basepath}/subslist_{name}_{self.now}.csv"
         self.network, self.network_client = ZepbenClient().get_network_and_networkClient(self.feeder_mrid)
         self.cls = Substation
 
@@ -97,16 +97,11 @@ class substation_data:
 
     async def get_subtation_data_from_hierarchy(self):
         filename = self.subs_data_path
+        cleanup(filename)
         headers = "mrid,__str__,description"
         create_csv(f"./{filename}", *headers.split(','))
 
-        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
-                                            rpc_port=50051,
-                                            client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
-                                            client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                            ca_filename=f"./EWB/config/X1.pem",
-                                            verify_conf=False)
-        
+        channel = ZepbenClient().get_zepben_channel()
         network_client = NetworkConsumerClient(channel=channel)
         network_hierarchy = (await network_client.get_network_hierarchy()).throw_on_error().value
 

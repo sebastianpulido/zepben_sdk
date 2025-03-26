@@ -16,9 +16,9 @@ class site_data:
 
     def __init__(self):
         self.name = self.__class__.__name__
-        now = datetime.datetime.now().strftime("%d%m%Y")
+        self.now = datetime.datetime.now().strftime("%d%m%Y")
         self.basepath = "./EWB/outputs"
-        self.data_path = f"{self.basepath}/{self.name}_{now}.csv"
+        self.data_path = f"{self.basepath}/{self.name}_{self.now}.csv"
         self.network = ZepbenClient().get_zepben_client("PTN-014")
         self.cls = Site
         if not os.path.exists(f"{self.basepath}"):
@@ -51,5 +51,5 @@ class site_data:
             create_csv(f"./{filename}", *cleaned_row)
         
 data = site_data()
-data.get_site_data()
+# data.get_site_data()
 data.get_site_data_allfeeders("PTN")

@@ -11,6 +11,7 @@ from zepben.evolve import connect_with_secret, PowerTransformer, EnergyConsumer,
 import datetime
 from CSVWriter import create_csv
 import pandas as pd
+from ZepbenClient import ZepbenClient
 
 class hierarchy_counts:
 
@@ -20,12 +21,7 @@ class hierarchy_counts:
         self.filename = f"{basepath}/hierarchy_supplypoints_{now}.csv"
 
     async def connect_jem(self):
-        channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
-                                            rpc_port=50051,
-                                            client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
-                                            client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                            ca_filename=f"./EWB/config/X1.pem",
-                                            verify_conf=False)
+        channel = ZepbenClient().get_zepben_channel()
         network_client = NetworkConsumerClient(channel=channel)
 
         network_hierarchy = (await network_client.get_network_hierarchy()).throw_on_error().value

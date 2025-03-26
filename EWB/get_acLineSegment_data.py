@@ -14,11 +14,11 @@ from zepben.evolve import PerLengthSequenceImpedance, Conductor, PowerTransforme
 class acLineSegment_data:
     def __init__(self):
         self.name = self.__class__.__name__
-        now = datetime.datetime.now().strftime("%d%m%Y")
+        self.now = datetime.datetime.now().strftime("%d%m%Y")
         self.basepath = "./EWB/outputs"
         self.feeder_mrid = "PTN-011"
-        self.data_path = f"{self.basepath}/{self.feeder_mrid}_{self.name}_{now}.csv"
-        self.feeders_data_path = f"{self.basepath}/feeders_data_{now}.csv"
+        self.data_path = f"{self.basepath}/{self.feeder_mrid}_{self.name}_{self.now}.csv"
+        self.feeders_data_path = f"{self.basepath}/feeders_data_{self.now}.csv"
         self.network = ZepbenClient().get_zepben_client(self.feeder_mrid)
         self.cls = AcLineSegment
         if not os.path.exists(f"{self.basepath}"):

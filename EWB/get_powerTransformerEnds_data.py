@@ -17,10 +17,10 @@ class powerTransformerEnd_data:
 
     def __init__(self):
         self.name = self.__class__.__name__
-        now = datetime.datetime.now().strftime("%d%m%Y")
+        self.now = datetime.datetime.now().strftime("%d%m%Y")
         self.basepath = "./EWB/outputs"
-        self.data_path = f"{self.basepath}/{self.name}_ends_{now}.csv"
-        self.txt = f"{self.basepath}/{self.name}_{now}.txt"
+        self.data_path = f"{self.basepath}/{self.name}_ends_{self.now}.csv"
+        self.txt = f"{self.basepath}/{self.name}_{self.now}.txt"
         self.network = ZepbenClient().get_zepben_client("PTN-014")
         self.cls = PowerTransformerEnd
 

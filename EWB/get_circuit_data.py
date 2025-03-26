@@ -15,11 +15,11 @@ from zepben.evolve import Junction, PerLengthSequenceImpedance, Conductor, Power
 class circuit_data:
     def __init__(self):
         self.name = self.__class__.__name__
-        now = datetime.datetime.now().strftime("%d%m%Y")
+        self.now = datetime.datetime.now().strftime("%d%m%Y")
         self.basepath = "./EWB/outputs"
         self.feeder_mrid = "PTN-014"
-        self.data_path = f"{self.basepath}/{self.feeder_mrid}_{self.name}_{now}.csv"
-        self.data_path2 = f"{self.basepath}/lvdata_{self.feeder_mrid}_{self.name}_{now}.csv"
+        self.data_path = f"{self.basepath}/{self.feeder_mrid}_{self.name}_{self.now}.csv"
+        self.data_path2 = f"{self.basepath}/lvdata_{self.feeder_mrid}_{self.name}_{self.now}.csv"
         self.network = ZepbenClient().get_zepben_client(self.feeder_mrid)
         self.cls = LvFeeder
 
@@ -95,21 +95,6 @@ class circuit_data:
                     else:
                         print(f"looping, skipping {lvf.mrid}")
 
-    def get_asset_data(self, id, type, feeder):
-        # c = self.network.get(circuit_id, LvFeeder)
-        # print(f"circuit data ({circuit_id}): {c.__str__()}")
-
-        network = ZepbenClient().get_zepben_network_all_feeders()
-        for lvf in network.objects(LvFeeder):
-            if lvf.normal_head_terminal:
-                if isinstance(lvf.normal_head_terminal.conducting_equipment, Switch):
-                    current = lvf.mrid.split("-")[0]
-                    print(f"current lvf: {current}")
-                    if current == circuit_id:
-                        print(f"found circuit: {circuit_id}")
-                        break
-                    else:
-                        print(f"looping, skipping {lvf.mrid}")
 
 data = circuit_data()
 # data.get_circuit_data()

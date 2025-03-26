@@ -9,6 +9,7 @@ from zepben.protobuf.nc.nc_requests_pb2 import IncludedEnergizedContainers
 from zepben.evolve import PowerTransformer, EnergyConsumer, AcLineSegment, SyncNetworkConsumerClient, connect_with_secret, \
     LvFeeder, SyncCustomerConsumerClient, Customer, connected_equipment, Switch
 
+from ZepbenClient import ZepbenClient
 
 @dataclass
 class NetworkNmi(object):
@@ -25,31 +26,11 @@ class NetworkNmi(object):
 
 
 def run_nmis():
-    # with open("./config-fargate.json") as f:
-    #     credentials = json.load(f)
-
-    # print(f"{credentials["host"]}")
-    # channel = connect_with_secret(host=credentials["host"],
-    #                                 rpc_port=credentials["port"],
-    #                                 client_id=credentials["client_id"],
-    #                                 client_secret=credentials["client_secret"],
-    #                                 ca_filename="./X1.pem",
-    #                                 verify_conf=False)
-
-    basepath = "./EWB/config"
-    
-    channel = connect_with_secret(host="ewb.networkmodel.nonprod-vpc.aws.int",
-                                        rpc_port=50051,
-                                        client_id="39356c3a-caf3-46cb-b417-98b6442574d3",
-                                        client_secret="0xP8Q~9tQcVVdLOdh4RQwWml3qbxl-rqrUs_KaA8",
-                                        ca_filename=f"{basepath}/X1.pem",
-                                        verify_conf=False)
-
+    channel = ZepbenClient().get_zepben_channel()
     network_client = SyncNetworkConsumerClient(channel=channel)
     customer_client = SyncCustomerConsumerClient(channel=channel)
     network_service = network_client.service
     customer_service = customer_client.service
-
     network_hierarchy = network_client.get_network_hierarchy().throw_on_error().value
 
     feeder_mrid = "PTN-014"
