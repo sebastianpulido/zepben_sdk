@@ -15,28 +15,17 @@ class ZepbenClient:
     print(f"production:{production}")
 
     def __init__(self):
-        if (self.production):
-            with open(f"{self.basepath}/prod_config.json") as f:
-                credentials = json.load(f)
-            print(f"host:{credentials["host"]}")
+        config_file = "prod_config.json" if self.production else "nonprod_config.json"
+        with open(f"{self.basepath}/{config_file}") as f:
+            credentials = json.load(f)
+            print(f"host:{credentials['host']}")
             self.channel = connect_with_token(
-                    host=credentials["host"],
-                    rpc_port=credentials["rpc_port"],
-                    ca_filename=credentials["ca_filename"],
-                    access_token=credentials["access_token"],
-                    skip_connection_test=True)
-            
-        else:
-            with open(f"{self.basepath}/nonprod_config.json") as f:
-                credentials = json.load(f)
-            print(f"host:{credentials["host"]}")
-            self.channel = connect_with_secret(
                 host=credentials["host"],
                 rpc_port=credentials["rpc_port"],
-                client_id=credentials["client_id"],
-                client_secret=credentials["client_secret"],
                 ca_filename=credentials["ca_filename"],
-                verify_conf=False)
+                access_token=credentials["access_token"],
+                skip_connection_test=True
+            )
 
     def get_feeders_by_group_name(self, feeder_group_name):
 

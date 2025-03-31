@@ -63,7 +63,5 @@ def convert_geometry(_hex: str):
     return new_geometry
 
 if __name__ == '__main__':
-    cleanup("./inputs/out.txt")
-    with open("./inputs/tmp.txt", 'r') as file:
-        for line in file:
-            convert_geometry(line)
+    geometry = "0102000020DB1E00000300000084CEA214F7094341962CDAADE68B4241207CED1CF709434104E8ACADE68B4241BCD22341F70943418135E7ACE68B4241"
+    convert_geometry(geometry)

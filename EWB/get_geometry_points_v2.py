@@ -28,46 +28,52 @@ class geometry_converter:
                 log_geometry(self.data_path, points)
 
     def convert_geometry(self, wkb_hex):
-        wkb_bytes = bytes.fromhex(wkb_hex)
-        geometry = loads(wkb_bytes)
+        new_geometry = "NULL"
+        try:
 
-        # Print the original geometry type and geometry
-        print("Original Geometry Type:", geometry.geom_type)
-        print("Original Geometry:", geometry)
+            wkb_bytes = bytes.fromhex(wkb_hex)
+            geometry = loads(wkb_bytes)
 
-        # Define the source CRS (EPSG:7899) and target CRS (EPSG:4326)
-        source_crs = "EPSG:7899"  # GDA2020 / MGA Zone
-        target_crs = "EPSG:4326"  # WGS84 longitude and latitude
+            # Print the original geometry type and geometry
+            print("\nOriginal Geometry Type:", geometry.geom_type)
+            print("Original Geometry:", geometry)
 
-        # Create a transformer for CRS conversion
-        transformer = Transformer.from_crs(source_crs, target_crs, always_xy=True)
+            # Define the source CRS (EPSG:7899) and target CRS (EPSG:4326)
+            source_crs = "EPSG:7899"  # GDA2020 / MGA Zone
+            target_crs = "EPSG:4326"  # WGS84 longitude and latitude
 
-        # Process geometry based on its type
-        if geometry.geom_type == "LineString":
-            # Transform the coordinates of the LineString
-            transformed_coords = [
-                transformer.transform(x, y) for x, y in geometry.coords
-            ]
-            new_geometry = LineString(transformed_coords)
-        elif geometry.geom_type == "MultiPoint":
-            # Transform the coordinates of the MultiPoint
-            transformed_coords = [
-                transformer.transform(point.x, point.y) for point in geometry.geoms
-            ]
-            new_geometry = MultiPoint(transformed_coords)
-        elif geometry.geom_type == "Point":
-            # Transform the coordinate of the Point
-            transformed_coord = transformer.transform(geometry.x, geometry.y)
-            new_geometry = Point(transformed_coord)
-        else:
-            raise ValueError(f"Unsupported geometry type: {geometry.geom_type}")
+            # Create a transformer for CRS conversion
+            transformer = Transformer.from_crs(source_crs, target_crs, always_xy=True)
 
-        # Print the transformed geometry in WGS84
-        print("Transformed Geometry (WGS84):", new_geometry)
+            # Process geometry based on its type
+            if geometry.geom_type == "LineString":
+                # Transform the coordinates of the LineString
+                transformed_coords = [
+                    transformer.transform(x, y) for x, y in geometry.coords
+                ]
+                new_geometry = LineString(transformed_coords)
+            elif geometry.geom_type == "MultiPoint":
+                # Transform the coordinates of the MultiPoint
+                transformed_coords = [
+                    transformer.transform(point.x, point.y) for point in geometry.geoms
+                ]
+                new_geometry = MultiPoint(transformed_coords)
+            elif geometry.geom_type == "Point":
+                # Transform the coordinate of the Point
+                transformed_coord = transformer.transform(geometry.x, geometry.y)
+                new_geometry = Point(transformed_coord)
+            else:
+                raise ValueError(f"Unsupported geometry type: {geometry.geom_type}")
 
-        # Re-encode the transformed geometry as WKB with SRID=4326
-        new_wkb = dumps(new_geometry, srid=4326, hex=True)
-        print("New WKB (WGS84):", new_wkb)
+            # Print the transformed geometry in WGS84
+            print("Transformed Geometry (WGS84):", new_geometry)
+
+            # Re-encode the transformed geometry as WKB with SRID=4326
+            new_wkb = dumps(new_geometry, srid=4326, hex=True)
+            print("New WKB (WGS84):", new_wkb)
+
+        except:
+            print(f"conversion not possible for hex:{wkb_hex}")
 
         return new_geometry
     
@@ -94,7 +100,9 @@ class geometry_converter:
         key_x, value_x = x.split("=")
         key_y, value_y = y.split("=")
         truncated_value_x = Decimal(value_x).quantize(Decimal('1e-10'))
+        truncated_value_x = value_x[:value_x.find('.') + 11]
         truncated_value_y = Decimal(value_y).quantize(Decimal('1e-10'))
+        truncated_value_y = value_y[:value_y.find('.') + 11]
         print(f"truncated x:{truncated_value_x} - ({value_x})")
         print(f"truncated y:{truncated_value_y} - ({value_y})")
         return f"{key_x}={truncated_value_x}", f"{key_y}={truncated_value_y}"
@@ -129,7 +137,8 @@ class geometry_converter:
         
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print("Usage: script.py <context> <path>")
+        print("Usage: script.py <context> <path of the file with SDW hex location data>")
+        print("Usage: note the filename used when running the script:\n 1. <context>_location_ewb.txt\n2. <context>_location_sdw.txt\n3. <context>_geometry_sdw.txt")
         sys.exit(1)
 
     context = sys.argv[1]
