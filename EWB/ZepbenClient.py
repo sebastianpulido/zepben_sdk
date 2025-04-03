@@ -17,13 +17,13 @@ class ZepbenClient:
     def __init__(self):
         config_file = "prod_config.json" if self.production else "nonprod_config.json"
         with open(f"{self.basepath}/{config_file}") as f:
-            credentials = json.load(f)
-            print(f"host:{credentials['host']}")
+            self.credentials = json.load(f)
+            print(f"host:{self.credentials['host']}")
             self.channel = connect_with_token(
-                host=credentials["host"],
-                rpc_port=credentials["rpc_port"],
-                ca_filename=credentials["ca_filename"],
-                access_token=credentials["access_token"],
+                host=self.credentials["host"],
+                rpc_port=self.credentials["rpc_port"],
+                ca_filename=self.credentials["ca_filename"],
+                access_token=self.credentials["access_token"],
                 skip_connection_test=True
             )
 

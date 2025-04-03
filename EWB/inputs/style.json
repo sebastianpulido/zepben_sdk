@@ -1,0 +1,71 @@
+[
+    {
+        "id": "ec-heatmap",
+        "type": "heatmap",
+        "paint": {
+            "heatmap-opacity": 0.5
+        },
+        "metadata": {
+            "zb:legend": {
+                "label": "Energy Consumer Density"
+            }
+        }
+    },
+    {
+        "id": "lvlines",
+        "name": "zone boundaries",
+        "type": "line",
+        "paint": {
+            "line-color": "rgb(0,0,0)",
+            "line-width": 3
+        },
+        "maxzoom": 24
+    },
+    {
+        "id": "lvlinesfill",
+        "name": "boundaryfill",
+        "type": "fill",
+        "paint": {
+            "fill-color": [
+                "match",
+                [
+                    "get",
+                    "pen"
+                ],
+                0,
+                "#3388FF",
+                1,
+                "#8800FF",
+                2,
+                "#AAAA00",
+                3,
+                "#00AA00",
+                4,
+                "#FF00AA",
+                5,
+                "#0000AA",
+                6,
+                "#AAAAAA",
+                7,
+                "#AA0000",
+                8,
+                "#00AAFF",
+                9,
+                "#AA00AA",
+                10,
+                "#CC8800",
+                11,
+                "#00AAAA",
+                12,
+                "#0000FF",
+                13,
+                "#666666",
+                14,
+                "#e30707",
+                "#cccccc"
+            ],
+            "fill-opacity": 0.5
+        },
+        "maxzoom": 24
+    }
+]
