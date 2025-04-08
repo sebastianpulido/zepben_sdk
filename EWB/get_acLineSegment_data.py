@@ -62,6 +62,12 @@ class acLineSegment_data:
             log(self.data_path, line)
         
 data = acLineSegment_data()
+
+# one feeder 
 data.get_acLineSegment_data()
+
+# all feeders in a site
 data.get_acLineSegment_data_allfeeders("PTN")
+
+# whole network
 data.get_acLineSegment_count()

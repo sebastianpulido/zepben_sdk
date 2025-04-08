@@ -79,9 +79,23 @@ class ZepbenClient:
         except (SyntaxError, ValueError) as e:
             print(f"Error parsing dictionary: {e}")
             return {}  # Return an empty dictionary in case of error
+        
 
     def get_zepben_channel(self):
         return self.channel
+
+
+    async def get_list_of_sites(self):
+        network_client = NetworkConsumerClient(channel=self.channel)
+        network_hierarchy = (await network_client.get_network_hierarchy()).throw_on_error().value
+
+        geojson_features = []
+        for gr in network_hierarchy.geographical_regions.values():
+            print(f"- {gr.name}")
+            for sgr in gr.sub_geographical_regions:
+                print(f"  - {sgr.name}")
+                for sub in sgr.substations:
+                    print(f"    - Processing all feeders on Substation {sub.name}")
 
 
     def get_zepben_network_client_by_feeder_group_name(self, feeder_group_name):
@@ -122,11 +136,13 @@ class ZepbenClient:
         log(filename, feeders)
         return feeders
     
+    
     def get_list_of_feeders(self):
         hierarchy_client = SyncNetworkConsumerClient(channel=self.channel)
         network_hierarchy = hierarchy_client.get_network_hierarchy().throw_on_error().value
         list_feeders = network_hierarchy.feeders.values()
         return sorted(fdr.name.strip() for fdr in list_feeders)
+    
 
     def get_list_of_feeders_dictionary(self):
         hierarchy_client = SyncNetworkConsumerClient(channel=self.channel)

@@ -10,12 +10,12 @@ from zepben.protobuf.nc.nc_requests_pb2 import IncludedEnergizedContainers
 from zepben.evolve import NetworkConsumerClient, connect_with_token
 from zepben.evolve import AcLineSegment, EnergyConsumer
 from zepben.eas import Study, Result, GeoJsonOverlay, EasClient
+from ZepbenClient import ZepbenClient
 
-with open("./EWB/config/nonprod_config.json") as f:
-    c = json.load(f)
 
 async def connect_jem():
-    channel = connect_with_token(host=c["host"], access_token=c["access_token"], rpc_port=c["rpc_port"], ca_filename=c["ca_filename"])
+    zepbenClient = ZepbenClient()
+    channel = zepbenClient.get_zepben_channel()
     network_client = NetworkConsumerClient(channel=channel)
     network_hierarchy = (await network_client.get_network_hierarchy()).throw_on_error().value
 
@@ -28,10 +28,10 @@ async def connect_jem():
                 print(f"    - Processing all feeders on Substation {sub.name}")
                 for feeder in sub.feeders:
                     if feeder.mrid == "COO-023":
-                        await process_feeder(feeder.mrid, channel)
+                        await process_feeder(feeder.mrid, channel, zepbenClient)
 
 
-async def process_feeder(feeder_mrid: str, channel):
+async def process_feeder(feeder_mrid: str, channel, zepbenClient: ZepbenClient):
     print(f"Fetching Zone {feeder_mrid}")
     network_client = NetworkConsumerClient(channel=channel)
     (await network_client.get_equipment_container(feeder_mrid, include_energized_containers=IncludedEnergizedContainers.INCLUDE_ENERGIZED_LV_FEEDERS)).throw_on_error()
@@ -86,10 +86,11 @@ async def process_feeder(feeder_mrid: str, channel):
     )
 
     print("Uploading study")
-    await upload_studies(study)
+    await upload_studies(study, zepbenClient)
 
 
-async def upload_studies(study):
+async def upload_studies(study, zepbenClient: ZepbenClient):
+    c = zepbenClient.credentials
     eas_client = EasClient(
         host=c["eas_host"],
         port=c["eas_port"],
